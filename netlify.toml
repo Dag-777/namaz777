@@ -1,3 +1,5 @@
+[build]
+  publish = "."
 [[headers]]
   for = "/service-worker.js"
   [headers.values]
