@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#00C851">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Намаз Гид">
+<meta name="description" content="Пошаговый намаз-гид + ИИ-помощник (Ибн Таймия). Offline. RU / FR.">
+<title>Намаз — Гид + Шейх ИИ | Guide de Prière</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/namaz-guide-assets/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="/namaz-guide-assets/icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&family=Nunito:wght@400;600;700;800&family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --emerald:#00C851;--emerald-dark:#009A3C;
+  --gold:#FFD700;--gold-dark:#CC9900;
+  --teal:#006B6B;--cream:#FFF8E7;
+  --night:#0A0F1E;--night-2:#112240;
+  --azure:#00BFFF;--coral:#FF6B35;
+  --white:#FFFFFF;--text-dim:rgba(255,255,255,0.6);
+  --radius-card:24px;--radius-btn:16px;
+  --shadow-card:0 8px 32px rgba(0,200,81,.15),0 2px 8px rgba(0,0,0,.3);
+  --shadow-gold:0 4px 20px rgba(255,215,0,.25);
+  --font-display:'Amiri','Noto Naskh Arabic',serif;
+  --font-body:'Nunito',system-ui,-apple-system,sans-serif;
+  --font-arabic:'Noto Naskh Arabic','Amiri',serif;
+  --nav-h:68px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;overflow-x:hidden}
+body{font-family:var(--font-body);color:var(--white);background:radial-gradient(1200px 600px at 50% -10%,rgba(0,200,81,.18),transparent 60%),radial-gradient(800px 500px at 110% 110%,rgba(255,215,0,.08),transparent 60%),linear-gradient(180deg,var(--night) 0%,#050813 100%);background-attachment:fixed;min-height:100dvh;line-height:1.45;-webkit-font-smoothing:antialiased;touch-action:pan-y}
+button{font-family:inherit;color:inherit;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+img{max-width:100%;display:block}a{color:var(--gold)}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+.star{position:absolute;background:var(--gold);border-radius:50%;opacity:.7;animation:twinkle var(--dur,3s) infinite ease-in-out;animation-delay:var(--delay,0s)}
+@keyframes twinkle{0%,100%{opacity:var(--min-op,.15);transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}
+#app{position:relative;z-index:1;min-height:100dvh;padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 8px)}
+.container{max-width:720px;margin:0 auto;padding:0 16px}
+header.topbar{position:sticky;top:0;z-index:20;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:linear-gradient(180deg,rgba(10,15,30,.95),rgba(10,15,30,.75));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,215,0,.12)}
+.topbar-row{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:720px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px}
+.brand .emoji{font-size:22px}.brand small{display:block;font-weight:600;font-size:11px;color:var(--text-dim)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(0,200,81,.14);border:1px solid rgba(0,200,81,.4);font-size:12px;font-weight:700}
+.chip.warn{background:rgba(255,107,53,.14);border-color:rgba(255,107,53,.4)}
+.chip.dim{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);color:var(--text-dim)}
+.lang-pick{display:flex;gap:4px;align-items:center}
+.lang-pick button{font-size:14px;padding:4px 8px;border-radius:8px;opacity:.55;font-weight:800;letter-spacing:.5px}
+.lang-pick button.on{opacity:1;background:rgba(255,215,0,.14);border:1px solid rgba(255,215,0,.35);color:var(--gold)}
+.progress-bar{position:sticky;top:0;z-index:15;height:6px;background:rgba(255,255,255,.08)}
+.progress-bar__fill{height:100%;background:linear-gradient(90deg,var(--emerald),var(--gold));transition:width .4s cubic-bezier(.4,0,.2,1);width:0%;box-shadow:0 0 12px rgba(0,200,81,.6)}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,215,0,.18);border-radius:var(--radius-card);padding:20px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:var(--shadow-card);margin-top:14px}
+.card--gold{border-color:rgba(255,215,0,.5);box-shadow:var(--shadow-gold)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:56px;padding:12px 22px;border-radius:var(--radius-btn);font-weight:800;font-size:16px;letter-spacing:.2px;transition:transform .12s ease,filter .2s,box-shadow .2s;background:linear-gradient(135deg,var(--emerald),var(--emerald-dark));color:#fff;box-shadow:0 6px 20px rgba(0,200,81,.35)}
+.btn:active{transform:scale(.96)}
+.btn--gold{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#1a1300;box-shadow:var(--shadow-gold)}
+.btn--outline{background:transparent;border:2px solid var(--emerald);color:var(--emerald);box-shadow:none}
+.btn--ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);box-shadow:none}
+.btn--sm{min-height:42px;padding:8px 14px;font-size:14px;border-radius:12px}
+.btn--full{width:100%}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1 1 auto}
+.arabic{font-family:var(--font-arabic);direction:rtl;text-align:right;font-size:clamp(28px,6vw,40px);color:var(--gold);text-shadow:0 0 18px rgba(255,215,0,.35),0 2px 8px rgba(0,0,0,.45);line-height:1.9;white-space:pre-line;font-weight:700}
+.translit{font-style:italic;color:#E8F7EF;margin-top:10px;font-size:16px}
+.translation{margin-top:12px;color:#F4F4FF;font-size:16px}
+.tip{margin-top:14px;padding:12px 14px;border-radius:14px;background:rgba(0,191,255,.08);border:1px solid rgba(0,191,255,.25);color:#D8F2FF;font-size:14px}
+.tip::before{content:"💡 "}
+.center{text-align:center}.small{font-size:12px;color:var(--text-dim)}
+.skeleton{background:linear-gradient(90deg,rgba(255,255,255,.05) 25%,rgba(255,255,255,.12) 50%,rgba(255,255,255,.05) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:12px;position:absolute;inset:0}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.screen{display:none;animation:fade .3s ease both}.screen.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#screen-hadith{position:fixed;inset:0;z-index:50;background:radial-gradient(600px 300px at 50% 10%,rgba(255,215,0,.12),transparent 60%),var(--night);overflow-y:auto;padding:20px}
+#screen-hadith.active{display:block}
+.ornament{width:96px;height:96px;opacity:.85;margin:12px auto 10px;display:block}
+.step-meta{display:flex;align-items:center;justify-content:space-between;padding:14px 2px 6px;gap:10px}
+.step-meta h2{margin:0;font-family:var(--font-display);font-size:22px;color:var(--gold)}
+.step-meta .pill{font-size:12px;color:var(--gold);background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);padding:4px 10px;border-radius:999px;font-weight:700;white-space:nowrap}
+.mode-pick{display:inline-flex;gap:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,215,0,.2);border-radius:999px;padding:3px;margin-top:4px}
+.mode-pick button{padding:6px 12px;border-radius:999px;font-weight:800;font-size:12px;color:var(--text-dim)}
+.mode-pick button.on{background:linear-gradient(135deg,var(--emerald),var(--emerald-dark));color:#fff;box-shadow:0 4px 10px rgba(0,200,81,.3)}
+.step-hero{position:relative;border-radius:20px;overflow:hidden;aspect-ratio:1/1;background:#101629;display:grid;place-items:center;border:1px solid rgba(255,215,0,.15)}
+.step-hero img{width:100%;height:100%;object-fit:contain;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(0,0,0,.25))}
+.step-hero .second{position:absolute;bottom:8px;right:8px;width:34%;aspect-ratio:1/1;border-radius:14px;overflow:hidden;border:1px solid rgba(255,215,0,.35);background:#0b1020}
+.step-card{animation:stepIn .35s cubic-bezier(.4,0,.2,1)}
+@keyframes stepIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+.step-card.back{animation:stepBack .35s cubic-bezier(.4,0,.2,1)}
+@keyframes stepBack{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:none}}
+.step-nav{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;margin-top:14px}
+.step-nav .btn{min-height:54px}
+.counter{padding:4px 8px;color:var(--text-dim);font-weight:700;font-size:13px;text-align:center}
+nav.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;height:calc(var(--nav-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:linear-gradient(180deg,rgba(10,15,30,.75),rgba(10,15,30,.95));backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid rgba(255,215,0,.12);display:grid;grid-template-columns:repeat(4,1fr)}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--text-dim);font-weight:700;font-size:11px;position:relative}
+.tab .ic{font-size:22px}.tab.active{color:var(--gold)}
+.tab.active::before{content:'';position:absolute;top:0;left:24%;right:24%;height:2px;background:linear-gradient(90deg,var(--emerald),var(--gold));border-radius:0 0 4px 4px}
+.tab.active .ic{transform:translateY(-2px);filter:drop-shadow(0 2px 8px rgba(255,215,0,.5))}
+#toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 14px + env(safe-area-inset-bottom));transform:translate(-50%,30px);opacity:0;pointer-events:none;z-index:60;background:rgba(17,34,64,.95);border:1px solid rgba(255,215,0,.3);padding:12px 16px;border-radius:14px;max-width:92vw;display:flex;gap:12px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4);transition:transform .35s cubic-bezier(.2,1.3,.4,1),opacity .2s}
+#toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#toast .toast-act{background:transparent;color:var(--gold);font-weight:800;padding:6px 10px;border-radius:8px;border:1px solid rgba(255,215,0,.4)}
+.chat-messages{display:flex;flex-direction:column;gap:10px;padding:10px 0 140px}
+.msg{padding:12px 14px;border-radius:18px;max-width:92%;white-space:pre-wrap;line-height:1.55;font-size:15px;animation:bubbleIn .25s ease both}
+@keyframes bubbleIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.msg.u{align-self:flex-end;background:linear-gradient(135deg,var(--emerald-dark),var(--teal));border-bottom-right-radius:6px}
+.msg.a{align-self:flex-start;background:linear-gradient(135deg,rgba(255,215,0,.15),rgba(255,107,53,.08));border:1px solid rgba(255,215,0,.22);border-bottom-left-radius:6px}
+.msg .speak{margin-left:6px;cursor:pointer;opacity:.75}
+.loading-dots::after{content:"…";display:inline-block;animation:dots 1.2s infinite}
+@keyframes dots{0%{content:"."}33%{content:".."}66%{content:"..."}}
+.quick-bar{display:flex;gap:8px;overflow-x:auto;padding:12px 0;scrollbar-width:none}
+.quick-bar::-webkit-scrollbar{display:none}
+.quick-q{padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,215,0,.25);font-size:13px;font-weight:700;color:#F4F4FF;white-space:nowrap;flex:0 0 auto}
+.quick-q:active{transform:scale(.96)}
+.composer{position:fixed;left:0;right:0;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom));padding:10px 16px;background:linear-gradient(180deg,rgba(10,15,30,.6),rgba(10,15,30,.97));border-top:1px solid rgba(255,215,0,.1);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:25}
+.composer .row{align-items:flex-end;max-width:720px;margin:0 auto}
+.composer textarea{flex:1 1 auto;min-height:52px;max-height:140px;resize:none;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,215,0,.22);color:#fff;font:inherit;font-size:16px;outline:none}
+.composer textarea:focus{border-color:var(--gold)}
+.mic{width:52px;min-width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--emerald),var(--emerald-dark));color:#fff;font-size:20px;display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,200,81,.4)}
+.mic.rec{animation:pulseRec 1s infinite;background:linear-gradient(135deg,#ff4444,#cc0000)}
+@keyframes pulseRec{0%,100%{box-shadow:0 0 0 0 rgba(255,68,68,.7)}50%{box-shadow:0 0 0 18px rgba(255,68,68,0)}}
+.send{width:52px;min-width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#1a1300;font-size:22px;display:grid;place-items:center;box-shadow:var(--shadow-gold)}
+.voice-row{display:flex;gap:4px;align-items:center;justify-content:center;margin-top:6px}
+.voice-row button{font-size:16px;padding:4px 10px;border-radius:8px;opacity:.55;font-weight:700}
+.voice-row button.on{opacity:1;background:rgba(255,215,0,.14);border:1px solid rgba(255,215,0,.35)}
+.kv{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px dashed rgba(255,255,255,.08);gap:12px}
+.kv:last-child{border-bottom:0}.kv .v{color:var(--text-dim);font-weight:700;font-size:13px}
+.input{display:block;width:100%;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,215,0,.2);color:#fff;font:inherit;font-size:15px;outline:none;margin-top:6px}
+.input:focus{border-color:var(--gold)}
+.label{display:block;font-size:13px;color:var(--azure);font-weight:700;margin-top:12px}
+.compass{position:relative;width:min(78vw,320px);aspect-ratio:1/1;border-radius:50%;margin:0 auto;background:radial-gradient(circle at 50% 50%,rgba(0,200,81,.15),transparent 60%),conic-gradient(from 0deg,rgba(255,215,0,.4),rgba(0,200,81,.4),rgba(255,215,0,.4));border:2px solid rgba(255,215,0,.4);box-shadow:inset 0 0 40px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.5);display:grid;place-items:center}
+.compass .inner{width:88%;aspect-ratio:1/1;border-radius:50%;background:radial-gradient(circle,#0c1426,#050813);display:grid;place-items:center;position:relative}
+.compass .needle{position:absolute;left:50%;top:50%;width:4px;height:46%;background:linear-gradient(180deg,var(--gold),rgba(255,215,0,.2));transform-origin:bottom center;transform:translate(-50%,-100%) rotate(0deg);border-radius:4px;transition:transform .4s ease;box-shadow:0 0 16px rgba(255,215,0,.6)}
+.compass .kaaba{font-size:34px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.6))}
+.compass .mark{position:absolute;left:50%;top:10px;transform:translateX(-50%);font-weight:800;color:var(--gold)}
+.sheet{position:fixed;inset:0;z-index:70;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55);animation:fade .2s}
+.sheet.open{display:flex}
+.sheet .inner{width:100%;max-width:560px;background:linear-gradient(180deg,#0f1a32,#0a0f1e);border-top-left-radius:24px;border-top-right-radius:24px;padding:20px 20px calc(24px + env(safe-area-inset-bottom));border:1px solid rgba(255,215,0,.2);border-bottom:0;animation:slideUp .35s cubic-bezier(.2,1.3,.4,1)}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.qr-box{margin-top:12px;display:grid;place-items:center;background:#fff;border-radius:16px;padding:16px}
+.hidden{display:none!important}
+@media (min-width:700px){.container{padding:0 24px}}
+</style>
+</head>
+<body>
+<div class="stars" aria-hidden="true"></div>
+
+<!-- ================ HADITH (first launch) ================ -->
+<section id="screen-hadith" class="screen">
+  <div class="container">
+    <svg class="ornament" viewBox="0 0 100 100" aria-hidden="true">
+      <defs><linearGradient id="grad1" x1="0" x2="1"><stop offset="0" stop-color="#FFD700"/><stop offset="1" stop-color="#00C851"/></linearGradient></defs>
+      <circle cx="50" cy="50" r="44" fill="none" stroke="url(#grad1)" stroke-width="1.5"/>
+      <circle cx="50" cy="50" r="34" fill="none" stroke="url(#grad1)" stroke-width="1"/>
+      <g stroke="url(#grad1)" stroke-width="1" fill="none"><path d="M50 8 L54 50 L50 92 L46 50 Z"/><path d="M8 50 L50 54 L92 50 L50 46 Z"/><path d="M20 20 L50 50 L80 80 M80 20 L50 50 L20 80"/></g>
+      <circle cx="50" cy="50" r="4" fill="#FFD700"/>
+    </svg>
+    <div class="card card--gold center">
+      <div style="font-size:48px;margin-bottom:8px">🌙⭐</div>
+      <p style="color:var(--gold);font-size:13px;letter-spacing:2px;text-transform:uppercase;margin:0 0 14px" data-i18n="hadith.src"></p>
+      <div class="arabic" style="text-align:center">مَنْ دَلَّ عَلَى خَيْرٍ فَلَهُ مِثْلُ أَجْرِ فَاعِلِهِ</div>
+      <div class="translit" style="margin-top:14px" data-i18n="hadith.translit"></div>
+      <div class="translation" data-i18n="hadith.translation"></div>
+      <div class="small" style="margin-top:8px" data-i18n="hadith.narrator"></div>
+    </div>
+    <div class="card center">
+      <p style="font-size:17px;line-height:1.7;margin:0 0 18px" data-i18n-html="hadith.motiv"></p>
+      <button class="btn btn--full" id="shareNow" data-i18n="hadith.share"></button>
+      <button class="btn btn--outline btn--full" style="margin-top:12px" id="enterApp" data-i18n="hadith.enter"></button>
+    </div>
+    <div class="small center" style="margin-top:14px" data-i18n="hadith.bismillah"></div>
+  </div>
+</section>
+
+<!-- ================ APP ================ -->
+<div id="app" style="display:none">
+
+<header class="topbar">
+  <div class="topbar-row">
+    <div class="brand"><span class="emoji">🕌</span><div><span data-i18n="brand.name">Намаз</span> <small data-i18n="brand.sub"></small></div></div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <div class="lang-pick">
+        <button id="langRuUi" class="on">RU</button>
+        <button id="langFrUi">FR</button>
+      </div>
+      <span class="chip dim" id="onlineChip" data-i18n="chip.online"></span>
+      <span class="chip" id="wakeChip" style="display:none" data-i18n="chip.wake"></span>
+    </div>
+  </div>
+</header>
+
+<div class="progress-bar" id="progressBar" style="display:none"><div class="progress-bar__fill" id="progressFill"></div></div>
+
+<main class="container">
+
+  <!-- NAMAZ -->
+  <section id="screen-namaz" class="screen active">
+    <div class="step-meta">
+      <div>
+        <div class="small"><span data-i18n="step.word">Шаг</span> <span id="stepNum">1</span> <span data-i18n="step.of">из</span> <span id="stepTotal">20</span></div>
+        <h2 id="stepTitle"></h2>
+        <div class="mode-pick">
+          <button id="mode2" class="on" data-i18n="mode.2"></button>
+          <button id="mode4" data-i18n="mode.4"></button>
+        </div>
+      </div>
+      <span class="pill" id="stepRakaat"></span>
+    </div>
+
+    <div class="card step-card" id="stepCard">
+      <div class="step-hero">
+        <div class="skeleton" id="sk"></div>
+        <img id="stepImg" alt="" src="" loading="eager">
+        <div class="second hidden" id="stepImg2Wrap"><img id="stepImg2" alt=""></div>
+      </div>
+      <div class="arabic" id="stepArabic" style="margin-top:16px"></div>
+      <div class="translit" id="stepTranslit"></div>
+      <div class="translation" id="stepTranslation"></div>
+      <div class="tip" id="stepTip"></div>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn btn--outline" id="btnPrev" data-i18n="step.prev"></button>
+      <button class="btn btn--gold" id="btnAudio" title="🔊" style="width:64px;padding:0">🔊</button>
+      <button class="btn" id="btnNext" data-i18n="step.next"></button>
+    </div>
+
+    <div class="counter" id="counter"></div>
+    <div class="row" style="margin-top:6px;justify-content:center">
+      <button class="btn btn--ghost btn--sm" id="btnReset" data-i18n="step.reset"></button>
+      <button class="btn btn--ghost btn--sm" id="btnAuto" data-i18n="step.auto.on"></button>
+    </div>
+    <audio id="stepAudio" preload="none"></audio>
+  </section>
+
+  <!-- AI -->
+  <section id="screen-ai" class="screen">
+    <div class="card center" style="margin-top:14px">
+      <div style="font-size:36px">📚</div>
+      <h2 style="font-family:var(--font-display);font-size:22px;color:var(--gold);margin:6px 0 2px" data-i18n="ai.title"></h2>
+      <div style="color:var(--azure);font-size:14px;font-weight:700" data-i18n="ai.subtitle"></div>
+      <div id="aiStatus" class="small" style="margin-top:6px"></div>
+    </div>
+    <div class="quick-bar" id="quickQs"></div>
+    <div class="chat-messages" id="chat"></div>
+    <div class="composer">
+      <div class="row">
+        <button class="mic" id="micBtn" title="🎤">🎤</button>
+        <textarea id="inp" rows="1" data-i18n-attr="placeholder:ai.placeholder"></textarea>
+        <button class="send" id="sendBtn" title="➤">➤</button>
+      </div>
+      <div class="voice-row">
+        <button id="voiceRu" class="on" title="Russian">🇷🇺 RU</button>
+        <button id="voiceFr" title="Français">🇫🇷 FR</button>
+        <button id="voiceAr" title="العربية">🇸🇦 AR</button>
+        <button id="speakLast" title="🔊">🔊</button>
+        <button id="stopSpeak" title="⏹">⏹</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SHARE / AJR -->
+  <section id="screen-share" class="screen">
+    <div class="card center">
+      <div style="font-size:48px">📤</div>
+      <h2 style="font-family:var(--font-display);font-size:26px;color:var(--gold);margin:10px 0 4px" data-i18n="share.title"></h2>
+      <div class="small" data-i18n="share.sub"></div>
+      <div class="qr-box" id="qrBoxInline" style="width:min(70vw,240px);aspect-ratio:1/1;margin:20px auto"></div>
+      <div class="row" style="flex-direction:column;gap:10px;max-width:420px;margin:0 auto">
+        <button class="btn btn--full" id="shareBtn" data-i18n="share.share"></button>
+        <button class="btn btn--gold btn--full hidden" id="installBtn" data-i18n="share.install"></button>
+        <button class="btn btn--outline btn--full" id="copyBtn" data-i18n="share.copy"></button>
+        <button class="btn btn--ghost btn--full" id="qrSheetBtn" data-i18n="share.bigqr"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="screen-settings" class="screen">
+    <div class="card">
+      <h3 style="color:var(--emerald);margin:0 0 10px" data-i18n="settings.ai"></h3>
+      <div class="small" data-i18n="settings.aiInfo"></div>
+      <label class="label" data-i18n-html="settings.groq"></label>
+      <input class="input" id="groqKey" type="password" placeholder="gsk_…" autocomplete="off"/>
+      <label class="label" data-i18n-html="settings.ds"></label>
+      <input class="input" id="dsKey" type="password" placeholder="sk-…" autocomplete="off"/>
+      <label class="label" data-i18n="settings.model"></label>
+      <input class="input" id="groqModel" placeholder="llama-3.3-70b-versatile"/>
+      <label class="label" data-i18n="settings.voice"></label>
+      <select class="input" id="voiceSel"></select>
+      <div class="small" data-i18n="settings.voiceHint"></div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn btn--sm" id="saveKeys" data-i18n="settings.save"></button>
+        <button class="btn btn--ghost btn--sm" id="clearHist" data-i18n="settings.clear"></button>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--emerald);margin:0 0 10px" data-i18n="qibla.title"></h3>
+      <div class="compass"><div class="inner">
+        <div class="mark">N</div>
+        <div class="needle" id="needle"></div>
+        <div class="kaaba">🕋</div>
+      </div></div>
+      <div class="center" style="margin-top:14px">
+        <div style="font-size:28px;font-weight:800;color:var(--gold)" id="qiblaDeg">—°</div>
+        <div class="small" id="qiblaInfo" data-i18n="qibla.info.init"></div>
+      </div>
+      <div class="row" style="margin-top:12px;justify-content:center">
+        <button class="btn btn--gold btn--sm" id="qiblaFind" data-i18n="qibla.find"></button>
+        <button class="btn btn--ghost btn--sm" id="qiblaCal" data-i18n="qibla.cal"></button>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--emerald);margin:0 0 10px" data-i18n="app.title"></h3>
+      <div class="kv"><span data-i18n="app.version"></span><span class="v">v3.1</span></div>
+      <div class="kv"><span data-i18n="app.net"></span><span class="v" id="netVal">—</span></div>
+      <div class="kv"><span data-i18n="app.installed"></span><span class="v" id="pwaVal">—</span></div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn btn--ghost btn--sm" id="swUpdateBtn" data-i18n="app.checkUpdate"></button>
+      </div>
+      <div class="small" style="margin-top:8px" data-i18n="app.iosHint"></div>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--emerald);margin:0 0 10px" data-i18n="sources.title"></h3>
+      <div class="small" data-i18n-html="sources.body"></div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="tabbar" role="tablist">
+  <button class="tab active" data-sec="namaz"><span class="ic">🕌</span><span data-i18n="tab.namaz"></span></button>
+  <button class="tab" data-sec="ai"><span class="ic">🤖</span><span data-i18n="tab.ai"></span></button>
+  <button class="tab" data-sec="share"><span class="ic">📤</span><span data-i18n="tab.share"></span></button>
+  <button class="tab" data-sec="settings"><span class="ic">⚙️</span><span data-i18n="tab.settings"></span></button>
+</nav>
+
+<div id="toast" role="status" aria-live="polite">
+  <span id="toastMsg"></span>
+  <button class="toast-act hidden" id="toastAct"></button>
+</div>
+
+<div class="sheet" id="qrSheet">
+  <div class="inner">
+    <h3 style="margin:0 0 8px" data-i18n="qr.title"></h3>
+    <div class="small" data-i18n="qr.sub"></div>
+    <div class="qr-box" id="qrBoxBig"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn btn--ghost btn--sm" id="qrClose" data-i18n="qr.close"></button>
+      <button class="btn btn--sm" id="qrCopy" data-i18n="qr.copy"></button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script src="/namaz-guide-assets/vendor/qrcode.min.js" defer></script>
+<script>
+/* ========== CONFIG ========== */
+const ASSET_BASE = '/namaz-guide-assets/';
+const GROQ_DEFAULT_KEY = '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';
+const GROQ_DEFAULT_MODEL = 'llama-3.3-70b-versatile';
+const MAX_CHAT_KEEP = 50;
+
+/* ========== STORAGE ========== */
+const LS = {
+  get:(k,d=null)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch{return d}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}},
+  raw:(k)=>{try{return localStorage.getItem(k);}catch{return null}},
+  setRaw:(k,v)=>{try{localStorage.setItem(k,v);}catch{}},
+  del:(k)=>{try{localStorage.removeItem(k);}catch{}}
+};
+if (!LS.raw('groq_key'))   LS.setRaw('groq_key', GROQ_DEFAULT_KEY);
+if (!LS.raw('groq_model')) LS.setRaw('groq_model', GROQ_DEFAULT_MODEL);
+if (!LS.raw('voice_lang')) LS.setRaw('voice_lang', 'ru-RU');
+if (!LS.raw('ui_lang'))    LS.setRaw('ui_lang', (navigator.language||'').toLowerCase().startsWith('fr')?'fr':'ru');
+
+/* ========== I18N (UI) ========== */
+const TR = {
+  ru: {
+    'brand.name':'Намаз','brand.sub':'Гид + Шейх ИИ',
+    'chip.online':'● Онлайн','chip.offline':'● Офлайн','chip.wake':'📱 Экран активен',
+    'tab.namaz':'Намаз','tab.ai':'Шейх ИИ','tab.share':'Аджр','tab.settings':'Настройки',
+    'hadith.src':'Достоверный хадис · Сахих Муслим №1893',
+    'hadith.translit':'«Ман далля \'аляя хайрин, фалаху мислю аджри фа\'илих»',
+    'hadith.translation':'«Кто укажет на благое дело — получит награду, подобную награде совершившего его».',
+    'hadith.narrator':'Передал Абу Масъуд аль-Ансари (радыяллаху анху)',
+    'hadith.motiv':'📲 Поделись с братьями и сёстрами —<br><strong style="color:var(--gold)">каждый их намаз принесёт тебе аджр, иншааллах!</strong> 🤲',
+    'hadith.share':'📤 Поделиться сейчас','hadith.enter':'Войти в приложение →','hadith.bismillah':'Бисмилляхи-р-Рахмани-р-Рахим 🤲',
+    'step.word':'Шаг','step.of':'из','step.prev':'← Назад','step.next':'Далее →','step.nextFinal':'Начать заново ↻','step.reset':'⟲ В начало','step.auto.on':'▶ Авто-режим','step.auto.off':'⏸ Пауза','step.autoStart':'▶ Авто-режим: +1 шаг каждые 22 сек','step.autoEnd':'Авто-режим завершён','step.autoPause':'Пауза','step.done':'🕌 Намаз завершён. Барака-Ллаху фик!','step.audioErr':'Не удалось проиграть аудио',
+    'mode.2':'2 ракаата','mode.4':'4 ракаата',
+    'ai.title':'Шейх ИИ','ai.subtitle':'Вопросы по фикху · Источник: Ибн Таймия رحمه الله',
+    'ai.status.groq':'🟢 Groq готов','ai.status.ds':'🟢 DeepSeek готов','ai.status.off':'🔴 Офлайн — ИИ недоступен','ai.status.noNet':'🔴 Нет интернета — ИИ недоступен',
+    'ai.hello':'Ас-саляму алейкум ва рахматуллахи ва баракатух 🌙\n\nЯ — Шейх ИИ. Отвечаю исключительно на основе трудов Шейха аль-Ислама Ибн Таймии رحمه الله — прежде всего из Маджму\' аль-Фатава. Если не буду знать точной позиции — скажу об этом честно.\n\nЗадавай вопрос по фикху, акыде, намазу, тахарату, посту, закяту.',
+    'ai.placeholder':'Задай вопрос по фикху…','ai.thinking':'думаю','ai.errKey':'⚠ Не удалось получить ответ. Проверьте API-ключ в «Настройки» и интернет.','ai.failSwitch':'⚡ Переключились на ','ai.nothingToSpeak':'Пока нечего озвучивать',
+    'voice.start':'🎤 Говорите…','voice.notSupported':'Голосовой ввод не поддерживается','voice.listening':'Уже слушаю…','voice.recogErr':'Ошибка распознавания',
+    'share.title':'Раздай аджр','share.sub':'Каждый намаз брата, которому ты отправишь,\nпринесёт тебе такую же награду','share.share':'📤 Поделиться ссылкой','share.install':'📲 Установить на экран','share.copy':'🔗 Скопировать ссылку','share.bigqr':'🔍 Крупный QR','share.copied':'🔗 Ссылка скопирована','share.copyFail':'Не удалось скопировать','share.fail':'Не удалось поделиться',
+    'settings.ai':'🔑 ИИ-помощник','settings.aiInfo':'Ключи хранятся только на твоём устройстве. Никуда не отправляются.',
+    'settings.groq':'Groq (рекомендуем) — <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com → Free</a>',
+    'settings.ds':'DeepSeek (fallback) — <a href="https://platform.deepseek.com" target="_blank" rel="noopener">+$5 бесплатно</a>',
+    'settings.model':'Модель Groq','settings.voice':'Голос ИИ','settings.voiceHint':'Язык речи переключается 🇷🇺/🇫🇷/🇸🇦 под полем ввода.',
+    'settings.save':'💾 Сохранить','settings.clear':'🗑 История чата','settings.saved':'💾 Сохранено','settings.cleared':'🗑 История очищена',
+    'qibla.title':'🧭 Направление Киблы','qibla.info.init':'Нажмите «Найти» — разрешите геолокацию','qibla.find':'📍 Найти Киблу','qibla.cal':'Калибровка','qibla.locating':'Определяю координаты…','qibla.coords':'Координаты:','qibla.noGeo':'Геолокация недоступна','qibla.compassActive':'Компас активен','qibla.compassDenied':'Доступ к компасу отклонён','qibla.noCoords':'Не удалось получить координаты:','qibla.compassErr':'Ошибка компаса',
+    'app.title':'⚙️ Приложение','app.version':'Версия','app.net':'Сеть','app.net.on':'онлайн','app.net.off':'офлайн','app.installed':'Установлено как PWA','app.yes':'да','app.no':'нет','app.checkUpdate':'🔄 Проверить обновление','app.iosHint':'iOS: Safari → «Поделиться» → «На экран Домой».','app.swUpdating':'🔄 Проверка обновления…','app.swReady':'🔄 Обновление готово','app.swApply':'Применить','app.swNoReg':'SW не зарегистрирован',
+    'sources.title':'📚 Об источниках','sources.body':'Аудио: <a href="https://azan.kz" target="_blank" rel="noopener">azan.kz</a>. Изображения: визуальный гид намаза для мужчин (риджаль). Хадис о благом деле — Муслим 1893 (Абу Масъуд аль-Ансари). Фикх: по Шейх уль-Исламу Ибн Таймии (رحمه الله) — Маджму\' аль-Фатава, Минхадж ас-Сунна, аль-\'Акида аль-Васитийя, Зад аль-Ма\'ад.',
+    'install.unavailable':'Установка недоступна (возможно, уже установлено или требуется HTTPS)','install.started':'✅ Установка начата',
+    'qr.title':'📷 Поделитесь ссылкой','qr.sub':'Сосед отсканирует — и откроет приложение.','qr.close':'Закрыть','qr.copy':'🔗 Скопировать','qr.err':'QR недоступен.',
+    'hadith.shareText':'Хадис Пророка ﷺ (Муслим 1893):\n«Кто укажет на благое дело — получит награду, подобную награде совершившего его».\n— Абу Масъуд аль-Ансари (р.а.)\n\nПриложение: ',
+    'shareApp.title':'Намаз — Гид + Шейх ИИ','shareApp.text':'Пошаговый намаз-гид + ИИ по фикху (Ибн Таймия). Офлайн.'
+  },
+  fr: {
+    'brand.name':'Namaz','brand.sub':'Guide + Cheikh IA',
+    'chip.online':'● En ligne','chip.offline':'● Hors ligne','chip.wake':'📱 Écran actif',
+    'tab.namaz':'Prière','tab.ai':'Cheikh IA','tab.share':'Ajr','tab.settings':'Réglages',
+    'hadith.src':'Hadith authentique · Sahih Muslim n°1893',
+    'hadith.translit':'« Man dalla ‘alâ khayrin, falahu mithlu ajri fâ‘ilih »',
+    'hadith.translation':'« Celui qui indique une bonne action reçoit une récompense semblable à celle de celui qui l’accomplit. »',
+    'hadith.narrator':'Rapporté par Abû Mas‘ûd al-Ansârî (qu’Allah l’agrée)',
+    'hadith.motiv':'📲 Partage avec tes frères et sœurs —<br><strong style="color:var(--gold)">chacune de leurs prières t’apportera l’ajr, inchâ’Allah !</strong> 🤲',
+    'hadith.share':'📤 Partager maintenant','hadith.enter':'Entrer dans l’application →','hadith.bismillah':'Bismillâh ar-Rahmân ar-Rahîm 🤲',
+    'step.word':'Étape','step.of':'sur','step.prev':'← Retour','step.next':'Suivant →','step.nextFinal':'Recommencer ↻','step.reset':'⟲ Au début','step.auto.on':'▶ Mode auto','step.auto.off':'⏸ Pause','step.autoStart':'▶ Mode auto : +1 étape toutes les 22 s','step.autoEnd':'Mode auto terminé','step.autoPause':'Pause','step.done':'🕌 Prière accomplie. Bârak Allâhu fîk !','step.audioErr':'Lecture audio impossible',
+    'mode.2':'2 rak‘ats','mode.4':'4 rak‘ats',
+    'ai.title':'Cheikh IA','ai.subtitle':'Questions de fiqh · Source : Ibn Taymiyya رحمه الله',
+    'ai.status.groq':'🟢 Groq prêt','ai.status.ds':'🟢 DeepSeek prêt','ai.status.off':'🔴 Hors ligne — IA indisponible','ai.status.noNet':'🔴 Pas d’internet — IA indisponible',
+    'ai.hello':'As-salâmu ‘alaykum wa rahmatullâhi wa barakâtuh 🌙\n\nJe suis Cheikh IA. Je réponds exclusivement à partir des œuvres de Cheikh al-Islâm Ibn Taymiyya رحمه الله — principalement Majmû‘ al-Fatâwâ. Si je ne connais pas sa position exacte, je le dirai honnêtement.\n\nPose ta question sur le fiqh, la ‘aqîda, la prière, la pureté, le jeûne ou la zakât.',
+    'ai.placeholder':'Pose ta question sur le fiqh…','ai.thinking':'je réfléchis','ai.errKey':'⚠ Impossible d’obtenir une réponse. Vérifie la clé API dans « Réglages » et la connexion.','ai.failSwitch':'⚡ Basculé sur ','ai.nothingToSpeak':'Rien à lire pour le moment',
+    'voice.start':'🎤 Parle maintenant…','voice.notSupported':'Entrée vocale non prise en charge','voice.listening':'J’écoute déjà…','voice.recogErr':'Erreur de reconnaissance',
+    'share.title':'Distribue l’ajr','share.sub':'Chaque prière d’un frère à qui tu envoies ce lien\nte rapportera la même récompense','share.share':'📤 Partager le lien','share.install':'📲 Installer sur l’écran','share.copy':'🔗 Copier le lien','share.bigqr':'🔍 Grand QR','share.copied':'🔗 Lien copié','share.copyFail':'Copie impossible','share.fail':'Partage impossible',
+    'settings.ai':'🔑 Assistant IA','settings.aiInfo':'Les clés sont stockées uniquement sur ton appareil. Rien n’est envoyé ailleurs.',
+    'settings.groq':'Groq (recommandé) — <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com → gratuit</a>',
+    'settings.ds':'DeepSeek (secours) — <a href="https://platform.deepseek.com" target="_blank" rel="noopener">5 $ offerts</a>',
+    'settings.model':'Modèle Groq','settings.voice':'Voix de l’IA','settings.voiceHint':'Langue de la voix : 🇷🇺/🇫🇷/🇸🇦 sous le champ de saisie.',
+    'settings.save':'💾 Enregistrer','settings.clear':'🗑 Historique du chat','settings.saved':'💾 Enregistré','settings.cleared':'🗑 Historique effacé',
+    'qibla.title':'🧭 Direction de la Qibla','qibla.info.init':'Appuie sur « Trouver » — autorise la géolocalisation','qibla.find':'📍 Trouver la Qibla','qibla.cal':'Calibrer','qibla.locating':'Localisation en cours…','qibla.coords':'Coordonnées :','qibla.noGeo':'Géolocalisation indisponible','qibla.compassActive':'Boussole active','qibla.compassDenied':'Accès à la boussole refusé','qibla.noCoords':'Coordonnées introuvables :','qibla.compassErr':'Erreur de boussole',
+    'app.title':'⚙️ Application','app.version':'Version','app.net':'Réseau','app.net.on':'en ligne','app.net.off':'hors ligne','app.installed':'Installée en PWA','app.yes':'oui','app.no':'non','app.checkUpdate':'🔄 Vérifier la mise à jour','app.iosHint':'iOS : Safari → « Partager » → « Sur l’écran d’accueil ».','app.swUpdating':'🔄 Vérification…','app.swReady':'🔄 Mise à jour prête','app.swApply':'Appliquer','app.swNoReg':'SW non enregistré',
+    'sources.title':'📚 Sources','sources.body':'Audio : <a href="https://azan.kz" target="_blank" rel="noopener">azan.kz</a>. Images : guide visuel de la prière pour hommes (rijâl). Hadith sur la bonne action — Muslim 1893 (Abû Mas‘ûd al-Ansârî). Fiqh : selon Cheikh al-Islâm Ibn Taymiyya (رحمه الله) — Majmû‘ al-Fatâwâ, Minhâj as-Sunna, al-‘Aqîda al-Wâsitiyya, Zâd al-Ma‘âd.',
+    'install.unavailable':'Installation indisponible (peut-être déjà installée ou HTTPS requis)','install.started':'✅ Installation lancée',
+    'qr.title':'📷 Partage ce lien','qr.sub':'Un voisin le scanne — et l’app s’ouvre.','qr.close':'Fermer','qr.copy':'🔗 Copier','qr.err':'QR indisponible.',
+    'hadith.shareText':'Hadith du Prophète ﷺ (Muslim 1893) :\n« Celui qui indique une bonne action reçoit la même récompense que celui qui l’accomplit. »\n— Abû Mas‘ûd al-Ansârî (qu’Allah l’agrée)\n\nApplication : ',
+    'shareApp.title':'Namaz — Guide + Cheikh IA','shareApp.text':'Guide de prière pas-à-pas + IA de fiqh (Ibn Taymiyya). Hors ligne.'
+  }
+};
+let uiLang = LS.raw('ui_lang') || 'ru';
+function t(key){ return (TR[uiLang]||TR.ru)[key] ?? (TR.ru[key] ?? key); }
+function applyI18n(){
+  document.documentElement.lang = uiLang;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.getAttribute('data-i18n-html')); });
+  document.querySelectorAll('[data-i18n-attr]').forEach(el => {
+    el.getAttribute('data-i18n-attr').split(';').forEach(p => { const [a,k]=p.split(':'); if (a&&k) el.setAttribute(a.trim(), t(k.trim())); });
+  });
+  document.getElementById('langRuUi').classList.toggle('on', uiLang==='ru');
+  document.getElementById('langFrUi').classList.toggle('on', uiLang==='fr');
+}
+function setUiLang(l){ uiLang=l; LS.setRaw('ui_lang', l); applyI18n(); renderStep(); netUpdate(); refreshChatShell(); syncSettings(); }
+
+/* ========== HAPTIC / TOAST / STARS ========== */
+const haptic = { tap:()=>navigator.vibrate?.(10), step:()=>navigator.vibrate?.(15), success:()=>navigator.vibrate?.([30,20,30]) };
+let toastTimer;
+function toast(msg,{ms=2600,action=null}={}){
+  const el=document.getElementById('toast'), m=document.getElementById('toastMsg'), a=document.getElementById('toastAct');
+  m.textContent=msg;
+  if (action){ a.textContent=action.label; a.classList.remove('hidden'); a.onclick=()=>{action.onClick?.(); el.classList.remove('show');}; }
+  else { a.classList.add('hidden'); a.onclick=null; }
+  el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'), ms);
+}
+(function createStars(){
+  const c=document.querySelector('.stars'), f=document.createDocumentFragment();
+  for (let i=0;i<60;i++){
+    const s=document.createElement('div'), sz=(1+Math.random()*2.2).toFixed(1);
+    s.className='star';
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${(Math.random()*100).toFixed(2)}%;top:${(Math.random()*100).toFixed(2)}%;--dur:${(2+Math.random()*4).toFixed(2)}s;--delay:${(Math.random()*4).toFixed(2)}s;--min-op:${(.1+Math.random()*.3).toFixed(2)};background:${i%11===0?'var(--azure)':(i%5===0?'#fff':'var(--gold)')}`;
+    f.appendChild(s);
+  }
+  c.appendChild(f);
+})();
+
+/* ========== NAMAZ DATA (33 шага/étapes) — STEPS_4 ==========
+   Каждый шаг: { id, img, [img2], audio, arabic, ru:{...}, fr:{...} } */
+const STEPS_4 = [
+ {id:1, img:"niet.png", audio:"", arabic:"النِّيَّةُ فِي الْقَلْبِ",
+  ru:{title:"Намерение (Ният)",rakaat:"Подготовка",translit:"Ан-Нийяту филь-кальб",translation:"Намерение — в сердце. Мысленно: «Намереваюсь совершить фарз зухр-намаза, 4 ракаата, ради Аллаха» (для Аср/Иша — замени название).",tip:"Ният — условие действительности намаза. Вслух произносить не нужно. Ибн Таймия: произнесение нията языком — бид'а."},
+  fr:{title:"Intention (Niyya)",rakaat:"Préparation",translit:"An-niyyatu fi-l-qalb",translation:"L’intention est dans le cœur. Mentalement : « J’ai l’intention d’accomplir la prière obligatoire de Dhuhr, 4 rak‘ats, pour Allah » (pour Asr/‘Ishâ’ — remplace le nom).",tip:"La niyya est une condition de validité. Elle n’a pas à être prononcée à voix haute. Ibn Taymiyya : la prononcer est une bid‘a."}},
+ {id:2, img:"takbir.png", audio:"02_Takbir.mp3", arabic:"اللَّهُ أَكْبَرُ",
+  ru:{title:"Такбир аль-Ихрам",rakaat:"1-й ракаат",translit:"Аллаху Акбар",translation:"Аллах — Величайший.",tip:"Подними руки до мочек ушей (мужчины) или плеч (женщины). С этой такбиры намаз начался."},
+  fr:{title:"Takbîrat al-Ihrâm",rakaat:"1er rak‘at",translit:"Allâhu Akbar",translation:"Allah est le plus Grand.",tip:"Lève les mains au niveau des oreilles (hommes) ou des épaules (femmes). Avec ce takbîr, la prière commence."}},
+ {id:3, img:"qyam-qyraat.png", audio:"03_Subhanaka+04_Istiaza.mp3", arabic:"سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ، وَتَبَارَكَ اسْمُكَ، وَتَعَالَى جَدُّكَ، وَلَا إِلَهَ غَيْرُكَ\nأَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ",
+  ru:{title:"Дуа аль-Истифтах (Субханака)",rakaat:"1-й ракаат",translit:"Субханака-Ллахумма ва бихамдика, ва табарака-смука, ва та'аля джаддука, ва ля иляха гайрук. А'узу билляхи мина-ш-шайтани-р-раджим.",translation:"Слава Тебе, о Аллах, и хвала Тебе. Благословенно имя Твоё. Величие Твоё превыше всего. Нет божества, кроме Тебя. Прибегаю к Аллаху от проклятого шайтана.",tip:"Читается тихо, один раз, в начале намаза. По Ибн Таймии — сунна (Маджму' 22/395)."},
+  fr:{title:"Du‘â’ al-Istiftâh (Subhânaka)",rakaat:"1er rak‘at",translit:"Subhânaka Allâhumma wa bi-hamdika, wa tabâraka-smuka, wa ta‘âlâ jadduka, wa lâ ilâha ghayruk. A‘ûdhu bi-llâhi min ash-shaytâni r-rajîm.",translation:"Gloire à Toi, ô Allah, et louange à Toi. Béni soit Ton Nom. Ta Majesté est suprême. Nulle divinité sauf Toi. Je me réfugie auprès d’Allah contre Satan le maudit.",tip:"À voix basse, une seule fois, au début. Sunna selon Ibn Taymiyya (Majmû‘ 22/395)."}},
+ {id:4, img:"qyam-qyraat.png", audio:"05_Fatiha.mp3", arabic:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nالْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ\nالرَّحْمَٰنِ الرَّحِيمِ\nمَالِكِ يَوْمِ الدِّينِ\nإِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ\nاهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ\nصِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ",
+  ru:{title:"Сура Аль-Фатиха (1-й ракаат)",rakaat:"1-й ракаат",translit:"Бисмилляхи-р-Рахмани-р-Рахим. Аль-хамду лилляхи Рабби-ль-'алямин. Ар-Рахмани-р-Рахим. Малики яуми-д-дин. Иййака на'буду ва иййака наста'ин. Ихдина-с-сирата-ль-мустаким. Сирата-ллязина ан'амта 'аляйхим, гайри-ль-магдуби 'аляйхим ва ля-д-даллин.",translation:"Во имя Аллаха, Милостивого, Милующего. Хвала Аллаху, Господу миров, Милостивому, Милующему, Властелину Дня воздаяния! Тебе одному мы поклоняемся и Тебя одного просим о помощи. Веди нас прямым путём — путём тех, кого Ты облагодетельствовал, не тех, на кого Ты разгневан, и не заблудших.",tip:"Столп намаза. Без Фатихи намаз недействителен. В Зухр/Аср — тихо, в Фаджр/Магриб/Иша — вслух. После — «Амин»."},
+  fr:{title:"Sourate Al-Fâtiha (1er rak‘at)",rakaat:"1er rak‘at",translit:"Bismillâhi r-Rahmâni r-Rahîm. Al-hamdu lillâhi Rabbi l-‘âlamîn. Ar-Rahmâni r-Rahîm. Mâliki yawmi d-dîn. Iyyâka na‘budu wa iyyâka nasta‘în. Ihdinâ s-sirâta l-mustaqîm. Sirâta lladhîna an‘amta ‘alayhim, ghayri l-maghdûbi ‘alayhim wa lâ d-dâllîn.",translation:"Au nom d’Allah, le Tout-Miséricordieux, le Très-Miséricordieux. Louange à Allah, Seigneur des mondes, le Tout-Miséricordieux, le Très-Miséricordieux, Maître du Jour de la Rétribution. C’est Toi que nous adorons, et c’est Toi dont nous implorons secours. Guide-nous dans le droit chemin, le chemin de ceux que Tu as comblés de faveurs, non celui de ceux qui ont encouru Ta colère, ni des égarés.",tip:"Pilier de la prière : sans Al-Fâtiha, la prière est invalide. À voix basse à Dhuhr/‘Asr, à voix haute à Fajr/Maghrib/‘Ishâ’. Puis dire « Âmîn »."}},
+ {id:5, img:"qyam-qyraat.png", audio:"Fatiha+Ikhlas.mp3", arabic:"قُلْ هُوَ اللَّهُ أَحَدٌ\nاللَّهُ الصَّمَدُ\nلَمْ يَلِدْ وَلَمْ يُولَدْ\nوَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ",
+  ru:{title:"Сура после Фатихи (1-й ракаат)",rakaat:"1-й ракаат",translit:"Куль хуваллаху Ахад. Аллаху-с-Самад. Лям ялид ва лям юляд. Ва лям якун лаху куфуван Ахад.",translation:"Скажи: «Он — Аллах Единый, Аллах Вечный. Он не родил и не был рождён. И нет никого равного Ему».",tip:"В Зухр/Аср — тихо. Ихлас равноценна трети Корана (Бухари 5013). Сура добавляется только в 1-м и 2-м ракаатах."},
+  fr:{title:"Sourate après Al-Fâtiha (1er rak‘at)",rakaat:"1er rak‘at",translit:"Qul huwa llâhu ahad. Allâhu s-samad. Lam yalid wa lam yûlad. Wa lam yakun lahu kufuwan ahad.",translation:"« Dis : Lui, Allah, est Un. Allah, le Soutien universel. Il n’a jamais engendré, n’a pas été engendré non plus. Et nul n’est égal à Lui. »",tip:"À voix basse à Dhuhr/‘Asr. Al-Ikhlâs équivaut au tiers du Coran (Bukhârî 5013). La sourate ne s’ajoute qu’aux 1er et 2ème rak‘ats."}},
+ {id:6, img:"ruku.png", audio:"07_Dua-ruku.mp3", arabic:"سُبْحَانَ رَبِّيَ الْعَظِيمِ",
+  ru:{title:"Руку' (поясной поклон)",rakaat:"1-й ракаат",translit:"Субхана Раббияль-'Азым (3 раза)",translation:"Пречист мой Господь Великий (3 раза).",tip:"Спина параллельна полу, руки на коленях. Тума'нина обязательна — иначе руку' недействителен."},
+  fr:{title:"Rukû‘ (inclinaison)",rakaat:"1er rak‘at",translit:"Subhâna Rabbiyal-‘Azîm (×3)",translation:"Gloire à mon Seigneur le Très-Grand (×3).",tip:"Dos parallèle au sol, mains sur les genoux. Le tamânîna (l’immobilité) est obligatoire — sinon le rukû‘ est invalide."}},
+ {id:7, img:"niet.png", audio:"08_SamiaLlahu+09_Rabbana.mp3", arabic:"سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ\nرَبَّنَا وَلَكَ الْحَمْدُ",
+  ru:{title:"И'тидаль (выпрямление)",rakaat:"1-й ракаат",translit:"Сами'аллаху лиман хамидах. Раббана ва ляка-ль-хамд.",translation:"Аллах слышит того, кто хвалит Его. Господь наш, Тебе хвала.",tip:"Подними руки и выпрямись полностью. И'тидаль — столп намаза."},
+  fr:{title:"I‘tidâl (redressement)",rakaat:"1er rak‘at",translit:"Sami‘a llâhu liman hamidah. Rabbanâ wa laka l-hamd.",translation:"Allah entend celui qui Le loue. Notre Seigneur, à Toi la louange.",tip:"Lève les mains et redresse-toi complètement. L’i‘tidâl est un pilier."}},
+ {id:8, img:"sajda.png", audio:"10_Dua-sudjud.mp3", arabic:"سُبْحَانَ رَبِّيَ الْأَعْلَى",
+  ru:{title:"Саджда №1 (1-й ракаат)",rakaat:"1-й ракаат",translit:"Субхана Раббияль-А'ля (3 раза)",translation:"Пречист мой Господь Всевышний (3 раза).",tip:"7 частей тела касаются земли: лоб+нос, две ладони, два колена, пальцы обеих ног (Бухари 812)."},
+  fr:{title:"Sujûd n°1 (1er rak‘at)",rakaat:"1er rak‘at",translit:"Subhâna Rabbiyal-A‘lâ (×3)",translation:"Gloire à mon Seigneur le Très-Haut (×3).",tip:"Sept parties du corps touchent le sol : front+nez, deux paumes, deux genoux, orteils des deux pieds (Bukhârî 812)."}},
+ {id:9, img:"tashahud.png", img2:"tashahud-legs.png", audio:"11_Rabbigfirli.mp3", arabic:"رَبِّ اغْفِرْ لِي، رَبِّ اغْفِرْ لِي",
+  ru:{title:"Джальса (сидение между саджда)",rakaat:"1-й ракаат",translit:"Рабби-гфир ли, Рабби-гфир ли",translation:"Господь мой, прости меня. Господь мой, прости меня.",tip:"Ифтираш: левая стопа под собой, правая — вертикально на пальцах. Сидение — тоже столп."},
+  fr:{title:"Jalsa (assise entre deux sujûd)",rakaat:"1er rak‘at",translit:"Rabbi ghfir lî, Rabbi ghfir lî",translation:"Mon Seigneur, pardonne-moi. Mon Seigneur, pardonne-moi.",tip:"Iftirâsh : pied gauche replié sous soi, pied droit vertical sur les orteils. Cette assise est aussi un pilier."}},
+ {id:10, img:"sajda.png", audio:"10_Dua-sudjud.mp3", arabic:"سُبْحَانَ رَبِّيَ الْأَعْلَى",
+  ru:{title:"Саджда №2 (1-й ракаат)",rakaat:"1-й ракаат",translit:"Субхана Раббияль-А'ля (3 раза)",translation:"Пречист мой Господь Всевышний (3 раза).",tip:"Второй саджда завершает первый ракаат. После — вставание на 2-й ракаат с такбиром."},
+  fr:{title:"Sujûd n°2 (1er rak‘at)",rakaat:"1er rak‘at",translit:"Subhâna Rabbiyal-A‘lâ (×3)",translation:"Gloire à mon Seigneur le Très-Haut (×3).",tip:"Ce second sujûd clôt le premier rak‘at. Puis, on se lève pour le 2ème rak‘at avec takbîr."}},
+ {id:11, img:"qyam-qyraat.png", audio:"05_Fatiha.mp3", arabic:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nالْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ…",
+  ru:{title:"Аль-Фатиха (2-й ракаат)",rakaat:"2-й ракаат",translit:"Бисмилляхи-р-Рахмани-р-Рахим. Аль-хамду лилляхи Рабби-ль-'алямин… (вся Фатиха)",translation:"Во имя Аллаха, Милостивого, Милующего. Хвала Аллаху, Господу миров… — вся сура Аль-Фатиха.",tip:"Встань с такбиром «Аллаху Акбар», скажи «Бисмилля» и читай Фатиху. Истифтах во 2-м ракаате НЕ повторяется."},
+  fr:{title:"Al-Fâtiha (2ème rak‘at)",rakaat:"2ème rak‘at",translit:"Bismillâhi r-Rahmâni r-Rahîm. Al-hamdu lillâhi Rabbi l-‘âlamîn… (toute la Fâtiha)",translation:"Au nom d’Allah, le Tout-Miséricordieux… — toute la sourate Al-Fâtiha.",tip:"Lève-toi avec « Allâhu Akbar », dis « Bismillâh » et récite la Fâtiha. L’istiftâh ne se répète pas au 2ème rak‘at."}},
+ {id:12, img:"qyam-qyraat.png", audio:"05_Fatiha+12_Kausar.mp3", arabic:"إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ\nفَصَلِّ لِرَبِّكَ وَانْحَرْ\nإِنَّ شَانِئَكَ هُوَ الْأَبْتَرُ",
+  ru:{title:"Сура Аль-Кавсар (2-й ракаат)",rakaat:"2-й ракаат",translit:"Инна а'тайна-каль-Кавсар. Фа-салли ли-Раббика ван-хар. Инна шани'ака хува-ль-абтар.",translation:"Поистине, Мы даровали тебе аль-Кавсар. Посему совершай намаз ради Господа твоего и закалывай жертву. Поистине, твой ненавистник — он отсечённый.",tip:"В Зухр/Аср — тихо. Во 2-м ракаате сура обычно короче 1-го (Ибн Таймия, Маджму' 22/274)."},
+  fr:{title:"Sourate Al-Kawthar (2ème rak‘at)",rakaat:"2ème rak‘at",translit:"Innâ a‘taynâka l-Kawthar. Fa-salli li-Rabbika wanhar. Inna shâni’aka huwa l-abtar.",translation:"En vérité, Nous t’avons donné Al-Kawthar. Prie donc ton Seigneur et sacrifie. Celui qui te hait se trouvera sans postérité.",tip:"À voix basse à Dhuhr/‘Asr. Au 2ème rak‘at la sourate est en général plus courte qu’au 1er (Ibn Taymiyya, Majmû‘ 22/274)."}},
+ {id:13, img:"ruku.png", audio:"07_Dua-ruku.mp3", arabic:"سُبْحَانَ رَبِّيَ الْعَظِيمِ",
+  ru:{title:"Руку' (2-й ракаат)",rakaat:"2-й ракаат",translit:"Субхана Раббияль-'Азым (3 раза)",translation:"Пречист мой Господь Великий (3 раза).",tip:"На такбире «Аллаху Акбар» опускайся ровно, без спешки."},
+  fr:{title:"Rukû‘ (2ème rak‘at)",rakaat:"2ème rak‘at",translit:"Subhâna Rabbiyal-‘Azîm (×3)",translation:"Gloire à mon Seigneur le Très-Grand (×3).",tip:"Sur le takbîr « Allâhu Akbar », descends calmement, sans hâte."}},
+ {id:14, img:"niet.png", audio:"08_SamiaLlahu+09_Rabbana.mp3", arabic:"سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ\nرَبَّنَا وَلَكَ الْحَمْدُ حَمْدًا كَثِيرًا طَيِّبًا مُبَارَكًا فِيهِ",
+  ru:{title:"И'тидаль (2-й ракаат)",rakaat:"2-й ракаат",translit:"Сами'аллаху лиман хамидах. Раббана ва ляка-ль-хамд, хамдан кясиран, таййибан, мубаракян фих.",translation:"Аллах слышит того, кто хвалит Его. Господь наш, Тебе — обильная, благая, благословенная хвала.",tip:"Подними руки (раф'уль-ядайн) — Ибн Таймия подчёркивает это как достоверную сунну."},
+  fr:{title:"I‘tidâl (2ème rak‘at)",rakaat:"2ème rak‘at",translit:"Sami‘a llâhu liman hamidah. Rabbanâ wa laka l-hamd, hamdan kathîran, tayyiban, mubârakan fîh.",translation:"Allah entend celui qui Le loue. Notre Seigneur, à Toi une louange abondante, excellente et bénie.",tip:"Lève les mains (raf‘ al-yadayn) — Ibn Taymiyya insiste que c’est une sunna authentique."}},
+ {id:15, img:"sajda.png", audio:"10_Dua-sudjud.mp3", arabic:"سُبْحَانَ رَبِّيَ الْأَعْلَى",
+  ru:{title:"Саджда №1 (2-й ракаат)",rakaat:"2-й ракаат",translit:"Субхана Раббияль-А'ля (3 раза)",translation:"Пречист мой Господь Всевышний (3 раза).",tip:"Проси дуа в саджде — это лучшее время для мольбы (Муслим 482)."},
+  fr:{title:"Sujûd n°1 (2ème rak‘at)",rakaat:"2ème rak‘at",translit:"Subhâna Rabbiyal-A‘lâ (×3)",translation:"Gloire à mon Seigneur le Très-Haut (×3).",tip:"Fais des invocations en sujûd — c’est le meilleur moment pour invoquer (Muslim 482)."}},
+ {id:16, img:"tashahud.png", audio:"11_Rabbigfirli.mp3", arabic:"رَبِّ اغْفِرْ لِي",
+  ru:{title:"Джальса (2-й ракаат)",rakaat:"2-й ракаат",translit:"Рабби-гфир ли (2 раза)",translation:"Господь мой, прости меня (2 раза).",tip:"Короткое сидение в ифтираш, спокойно, без спешки."},
+  fr:{title:"Jalsa (2ème rak‘at)",rakaat:"2ème rak‘at",translit:"Rabbi ghfir lî (×2)",translation:"Mon Seigneur, pardonne-moi (×2).",tip:"Courte assise en iftirâsh, calmement, sans hâte."}},
+ {id:17, img:"sajda.png", audio:"10_Dua-sudjud.mp3", arabic:"سُبْحَانَ رَبِّيَ الْأَعْلَى",
+  ru:{title:"Саджда №2 (2-й ракаат)",rakaat:"2-й ракаат",translit:"Субхана Раббияль-А'ля (3 раза)",translation:"Пречист мой Господь Всевышний (3 раза).",tip:"После этого саджда — первый ташаххуд (сидя), затем встаём на 3-й ракаат."},
+  fr:{title:"Sujûd n°2 (2ème rak‘at)",rakaat:"2ème rak‘at",translit:"Subhâna Rabbiyal-A‘lâ (×3)",translation:"Gloire à mon Seigneur le Très-Haut (×3).",tip:"Après ce sujûd — premier tashahhud (assis), puis on se lève pour le 3ème rak‘at."}},
+ {id:18, img:"tashahud.png", audio:"13_attahiyat.mp3", arabic:"التَّحِيَّاتُ لِلَّهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ، السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللَّهِ الصَّالِحِينَ، أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا اللَّهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ",
+  ru:{title:"Первый ташаххуд",rakaat:"После 2-го ракаата",translit:"Ат-тахиййату лилляхи, ва-с-салявату ва-т-таййибат. Ас-саляму 'аляйка аййуха-н-Набиййу ва рахматуллахи ва баракатух. Ас-саляму 'аляйна ва 'аля 'ибадилляхи-с-салихин. Ашхаду ан ля иляха илля-Ллах, ва ашхаду анна Мухаммадан 'абдуху ва расулух.",translation:"Приветствия Аллаху, молитвы и всё благое. Мир тебе, о Пророк, милость Аллаха и Его благословения. Мир нам и праведным рабам Аллаха. Свидетельствую, что нет божества, кроме Аллаха, и что Мухаммад — Его раб и посланник.",tip:"ТОЛЬКО ат-тахиййат, без салавата на Пророка ﷺ — сунна по Ибн Таймии (Маджму' 22/265). На «ля иляха илля-Ллах» — подними указательный палец."},
+  fr:{title:"Premier tashahhud",rakaat:"Après le 2ème rak‘at",translit:"At-tahiyyâtu lillâhi wa s-salawâtu wa t-tayyibât. As-salâmu ‘alayka ayyuhâ n-nabiyyu wa rahmatu llâhi wa barakâtuh. As-salâmu ‘alaynâ wa ‘alâ ‘ibâdi llâhi s-sâlihîn. Ash-hadu an lâ ilâha illâ llâh, wa ash-hadu anna Muhammadan ‘abduhu wa rasûluh.",translation:"Les salutations appartiennent à Allah, ainsi que les prières et les bonnes actions. Que la paix soit sur toi, ô Prophète, ainsi que la miséricorde d’Allah et Ses bénédictions. Que la paix soit sur nous et sur les serviteurs vertueux d’Allah. J’atteste qu’il n’y a de divinité qu’Allah, et que Muhammad est Son serviteur et messager.",tip:"UNIQUEMENT at-tahiyyât, sans salâwât sur le Prophète ﷺ — sunna selon Ibn Taymiyya (Majmû‘ 22/265). À « lâ ilâha illâ llâh », lève l’index."}},
+ {id:19, img:"qyam-qyraat.png", audio:"05_Fatiha.mp3", arabic:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nالْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ…",
+  ru:{title:"Аль-Фатиха (3-й ракаат)",rakaat:"3-й ракаат",translit:"Бисмилляхи-р-Рахмани-р-Рахим. Аль-хамду лилляхи Рабби-ль-'алямин… (вся Фатиха)",translation:"Во имя Аллаха, Милостивого, Милующего… — только сура Аль-Фатиха.",tip:"Встань с такбиром. В 3-м и 4-м ракаатах Фатиха — тихо, суры после неё НЕ добавляются."},
+  fr:{title:"Al-Fâtiha (3ème rak‘at)",rakaat:"3ème rak‘at",translit:"Bismillâhi r-Rahmâni r-Rahîm… (toute la Fâtiha)",translation:"Au nom d’Allah… — seule la sourate Al-Fâtiha.",tip:"Lève-toi avec le takbîr. Aux 3ème et 4ème rak‘ats, la Fâtiha est récitée à voix basse, sans sourate supplémentaire."}},
+ {id:20, img:"ruku.png", audio:"07_Dua-ruku.mp3", arabic:"سُبْحَانَ رَبِّيَ الْعَظِيمِ",
+  ru:{title:"Руку' (3-й ракаат)",rakaat:"3-й ракаат",translit:"Субхана Раббияль-'Азым (3 раза)",translation:"Пречист мой Господь Великий (3 раза).",tip:"Тума'нина — каждый столп должен быть совершён спокойно."},
+  fr:{title:"Rukû‘ (3ème rak‘at)",rakaat:"3ème rak‘at",translit:"Subhâna Rabbiyal-‘Azîm (×3)",translation:"Gloire à mon Seigneur le Très-Grand (×3).",tip:"Tamânîna : chaque pilier doit être accompli avec calme."}},
+ {id:21, img:"niet.png", audio:"08_SamiaLlahu+09_Rabbana.mp3", arabic:"سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ\nرَبَّنَا وَلَكَ الْحَمْدُ",
+  ru:{title:"И'тидаль (3-й ракаат)",rakaat:"3-й ракаат",translit:"Сами'аллаху лиман хамидах. Раббана ва ляка-ль-хамд.",translation:"Аллах слышит того, кто хвалит Его. Господь наш, Тебе хвала.",tip:"Подними руки, выпрямись полностью."},
+  fr:{title:"I‘tidâl (3ème rak‘at)",rakaat:"3ème rak‘at",translit:"Sami‘a llâhu liman hamidah. Rabbanâ wa laka l-hamd.",translation:"Allah entend celui qui Le loue. Notre Seigneur, à Toi la louange.",tip:"Lève les mains et redresse-toi complètement."}},
+ {id:22, img:"sajda.png", audio:"10_Dua-sudjud.mp3", arabic:"سُبْحَانَ رَبِّيَ الْأَعْلَى",
+  ru:{title:"Саджда №1 (3-й ракаат)",rakaat:"3-й ракаат",translit:"Субхана Раббияль-А'ля (3 раза)",translation:"Пречист мой Господь Всевышний (3 раза).",tip:"Саджда — поклонение, которое нельзя совершать никому, кроме Аллаха (Коран 41:37)."},
+  fr:{title:"Sujûd n°1 (3ème rak‘at)",rakaat:"3ème rak‘at",translit:"Subhâna Rabbiyal-A‘lâ (×3)",translation:"Gloire à mon Seigneur le Très-Haut (×3).",tip:"Le sujûd est un acte d’adoration qui ne revient qu’à Allah (Coran 41:37)."}},
+ {id:23, img:"tashahud.png", audio:"11_Rabbigfirli.mp3", arabic:"رَبِّ اغْفِرْ لِي",
+  ru:{title:"Джальса (3-й ракаат)",rakaat:"3-й ракаат",translit:"Рабби-гфир ли (2 раза)",translation:"Господь мой, прости меня (2 раза).",tip:"Короткое сидение между двумя саджда."},
+  fr:{title:"Jalsa (3ème rak‘at)",rakaat:"3ème rak‘at",translit:"Rabbi ghfir lî (×2)",translation:"Mon Seigneur, pardonne-moi (×2).",tip:"Brève assise entre les deux sujûd."}},
+ {id:24, img:"sajda.png", audio:"10_Dua-sudjud.mp3", arabic:"سُبْحَانَ رَبِّيَ الْأَعْلَى",
+  ru:{title:"Саджда №2 (3-й ракаат)",rakaat:"3-й ракаат",translit:"Субхана Раббияль-А'ля (3 раза)",translation:"Пречист мой Господь Всевышний (3 раза).",tip:"Второй саджда третьего ракаата. После — вставание на 4-й."},
+  fr:{title:"Sujûd n°2 (3ème rak‘at)",rakaat:"3ème rak‘at",translit:"Subhâna Rabbiyal-A‘lâ (×3)",translation:"Gloire à mon Seigneur le Très-Haut (×3).",tip:"Second sujûd du 3ème rak‘at. On se lève ensuite pour le 4ème."}},
+ {id:25, img:"qyam-qyraat.png", audio:"05_Fatiha.mp3", arabic:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nالْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ…",
+  ru:{title:"Аль-Фатиха (4-й ракаат)",rakaat:"4-й ракаат",translit:"Бисмилляхи-р-Рахмани-р-Рахим. Аль-хамду лилляхи Рабби-ль-'алямин… (вся Фатиха)",translation:"Во имя Аллаха… — только сура Аль-Фатиха.",tip:"Последний ракаат. Фатиха тихо, без дополнительной суры."},
+  fr:{title:"Al-Fâtiha (4ème rak‘at)",rakaat:"4ème rak‘at",translit:"Bismillâhi r-Rahmâni r-Rahîm… (toute la Fâtiha)",translation:"Au nom d’Allah… — seule la sourate Al-Fâtiha.",tip:"Dernier rak‘at. Fâtiha à voix basse, sans sourate supplémentaire."}},
+ {id:26, img:"ruku.png", audio:"07_Dua-ruku.mp3", arabic:"سُبْحَانَ رَبِّيَ الْعَظِيمِ",
+  ru:{title:"Руку' (4-й ракаат)",rakaat:"4-й ракаат",translit:"Субхана Раббияль-'Азым (3 раза)",translation:"Пречист мой Господь Великий (3 раза).",tip:"Сохраняй хушу' — сосредоточенность — до самого конца."},
+  fr:{title:"Rukû‘ (4ème rak‘at)",rakaat:"4ème rak‘at",translit:"Subhâna Rabbiyal-‘Azîm (×3)",translation:"Gloire à mon Seigneur le Très-Grand (×3).",tip:"Garde le khushû‘ (la concentration) jusqu’à la fin."}},
+ {id:27, img:"niet.png", audio:"08_SamiaLlahu+09_Rabbana.mp3", arabic:"سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ\nرَبَّنَا وَلَكَ الْحَمْدُ",
+  ru:{title:"И'тидаль (4-й ракаат)",rakaat:"4-й ракаат",translit:"Сами'аллаху лиман хамидах. Раббана ва ляка-ль-хамд.",translation:"Аллах слышит того, кто хвалит Его. Господь наш, Тебе хвала.",tip:"Полное выпрямление перед последним саджда намаза."},
+  fr:{title:"I‘tidâl (4ème rak‘at)",rakaat:"4ème rak‘at",translit:"Sami‘a llâhu liman hamidah. Rabbanâ wa laka l-hamd.",translation:"Allah entend celui qui Le loue. Notre Seigneur, à Toi la louange.",tip:"Redressement complet avant le dernier sujûd de la prière."}},
+ {id:28, img:"sajda.png", audio:"10_Dua-sudjud.mp3", arabic:"سُبْحَانَ رَبِّيَ الْأَعْلَى",
+  ru:{title:"Саджда №1 (4-й ракаат)",rakaat:"4-й ракаат",translit:"Субхана Раббияль-А'ля (3 раза)",translation:"Пречист мой Господь Всевышний (3 раза).",tip:"Используй момент в саджде для личной дуа — Ибн Таймия допускает на любом языке вне обязательных формул."},
+  fr:{title:"Sujûd n°1 (4ème rak‘at)",rakaat:"4ème rak‘at",translit:"Subhâna Rabbiyal-A‘lâ (×3)",translation:"Gloire à mon Seigneur le Très-Haut (×3).",tip:"Profite du sujûd pour tes invocations personnelles — Ibn Taymiyya permet n’importe quelle langue hors des formules obligatoires."}},
+ {id:29, img:"tashahud.png", audio:"11_Rabbigfirli.mp3", arabic:"رَبِّ اغْفِرْ لِي",
+  ru:{title:"Джальса (4-й ракаат)",rakaat:"4-й ракаат",translit:"Рабби-гфир ли (2 раза)",translation:"Господь мой, прости меня (2 раза).",tip:"Короткое сидение перед последним саджда."},
+  fr:{title:"Jalsa (4ème rak‘at)",rakaat:"4ème rak‘at",translit:"Rabbi ghfir lî (×2)",translation:"Mon Seigneur, pardonne-moi (×2).",tip:"Courte assise avant le dernier sujûd."}},
+ {id:30, img:"sajda.png", audio:"10_Dua-sudjud.mp3", arabic:"سُبْحَانَ رَبِّيَ الْأَعْلَى",
+  ru:{title:"Саджда №2 (4-й ракаат)",rakaat:"4-й ракаат",translit:"Субхана Раббияль-А'ля (3 раза)",translation:"Пречист мой Господь Всевышний (3 раза).",tip:"Последний земной поклон намаза. Далее — финальное сидение с ташаххудом и салаватом."},
+  fr:{title:"Sujûd n°2 (4ème rak‘at)",rakaat:"4ème rak‘at",translit:"Subhâna Rabbiyal-A‘lâ (×3)",translation:"Gloire à mon Seigneur le Très-Haut (×3).",tip:"Dernier sujûd de la prière. Ensuite : assise finale avec tashahhud et salâwât."}},
+ {id:31, img:"tashahud-edu.png", audio:"13_attahiyat+14_Salavat+15_dua-attahiyat.mp3", arabic:"التَّحِيَّاتُ لِلَّهِ…\nاللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ\nاللَّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ",
+  ru:{title:"Финальный ташаххуд + Салават",rakaat:"Завершение",translit:"Ат-тахиййату лилляхи… (полный ташаххуд) + Аллахумма салли 'аля Мухаммадин ва 'аля али Мухаммад, кама саллейта 'аля Ибрахима ва 'аля али Ибрахим, иннака Хамидун Маджид. Аллахумма барик 'аля Мухаммадин ва 'аля али Мухаммад, кама баракта 'аля Ибрахима ва 'аля али Ибрахим, иннака Хамидун Маджид.",translation:"Приветствия Аллаху… О Аллах, благослови Мухаммада и род Мухаммада, как Ты благословил Ибрахима и род Ибрахима… И пошли благодать Мухаммаду и роду Мухаммада, как Ты послал благодать Ибрахиму и роду Ибрахима…",tip:"Поза таваррук: левая стопа выходит из-под правой, бедро на земле. Палец поднят на «ля иляха илля-Ллах». Затем дуа: «Аллахумма инни а'узу бика мин 'азаби джаханнам…» (Муслим 588)."},
+  fr:{title:"Tashahhud final + Salâwât",rakaat:"Conclusion",translit:"At-tahiyyâtu lillâhi… (tashahhud complet) + Allâhumma salli ‘alâ Muhammadin wa ‘alâ âli Muhammad, kamâ sallayta ‘alâ Ibrâhîma wa ‘alâ âli Ibrâhîm, innaka Hamîdun Majîd. Allâhumma bârik ‘alâ Muhammadin wa ‘alâ âli Muhammad, kamâ bârakta ‘alâ Ibrâhîma wa ‘alâ âli Ibrâhîm, innaka Hamîdun Majîd.",translation:"Les salutations appartiennent à Allah… Ô Allah, bénis Muhammad et la famille de Muhammad comme Tu as béni Ibrâhîm et la famille d’Ibrâhîm… Et bénis abondamment Muhammad et sa famille comme Tu as béni abondamment Ibrâhîm et sa famille…",tip:"Tawarruk : pied gauche sous la jambe droite, hanche au sol. L’index est levé à « lâ ilâha illâ llâh ». Puis invocation : « Allâhumma innî a‘ûdhu bika min ‘adhâbi jahannam… » (Muslim 588)."}},
+ {id:32, img:"salam-right.png", img2:"salam-left.png", audio:"16_salam.mp3", arabic:"السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ\nالسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ",
+  ru:{title:"Салям — направо и налево",rakaat:"Завершение",translit:"Ас-саляму 'аляйкум ва рахматуллах (вправо).\nАс-саляму 'аляйкум ва рахматуллах (влево).",translation:"Мир вам и милость Аллаха — направо, затем налево.",tip:"Поверни голову вправо так, чтобы была видна щека, затем — влево. Намаз завершён."},
+  fr:{title:"Salâm — à droite, à gauche",rakaat:"Conclusion",translit:"As-salâmu ‘alaykum wa rahmatullâh (à droite).\nAs-salâmu ‘alaykum wa rahmatullâh (à gauche).",translation:"Que la paix et la miséricorde d’Allah soient sur vous — à droite puis à gauche.",tip:"Tourne la tête à droite de sorte que la joue soit visible, puis à gauche. La prière est achevée."}},
+ {id:33, img:"dua.png", audio:"17_dua-posle-namaza.mp3", arabic:"أَسْتَغْفِرُ اللَّهَ (×3)\nاللَّهُمَّ أَنْتَ السَّلَامُ وَمِنْكَ السَّلَامُ، تَبَارَكْتَ يَا ذَا الْجَلَالِ وَالْإِكْرَامِ\nسُبْحَانَ اللَّهِ (×33) — الْحَمْدُ لِلَّهِ (×33) — اللَّهُ أَكْبَرُ (×33)\nلَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
+  ru:{title:"Азкары и дуа после намаза",rakaat:"После намаза",translit:"Астагфируллах (3×). Аллахумма анта-с-Саляму ва минка-с-Салям, табаракта я За-ль-джаляли валь-икрам. Субханаллах (33×) — Альхамдулиллах (33×) — Аллаху Акбар (33×). Ля иляха илля-Ллаху вахдаху ля шарика лях, ляху-ль-мульку ва ляху-ль-хамд, ва хува 'аля кулли шайин кадир.",translation:"Прошу прощения у Аллаха (3×). О Аллах, Ты — Мир, от Тебя — мир. Благословен Ты, О Обладатель величия и почёта. Пречист Аллах (33×), хвала Аллаху (33×), Аллах Велик (33×). Нет божества, кроме Аллаха Единого, нет Ему сотоварища. Ему принадлежит царство, Ему хвала, и Он над всякой вещью мощен.",tip:"Муслим 597: кто произнесёт эти тасбихи, тому прощаются грехи, даже если их — как пены морской. Затем — Аят аль-Курси и Му'авваизат (Ихлас, Фаляк, Нас — трижды после Фаджра/Магриба, по одному — после остальных)."},
+  fr:{title:"Adhkâr et invocations après la prière",rakaat:"Après la prière",translit:"Astaghfirullâh (×3). Allâhumma anta s-Salâmu wa minka s-Salâm, tabârakta yâ Dhâ l-Jalâli wa l-Ikrâm. Subhânallâh (×33) — Al-hamdulillâh (×33) — Allâhu Akbar (×33). Lâ ilâha illâ llâhu wahdahu lâ sharîka lah, lahu l-mulku wa lahu l-hamd, wa huwa ‘alâ kulli shay’in qadîr.",translation:"Je demande pardon à Allah (×3). Ô Allah, Tu es la Paix et c’est de Toi que vient la paix. Béni sois-Tu, ô Maître de la Majesté et de la Noblesse. Gloire à Allah (×33), louange à Allah (×33), Allah est le plus Grand (×33). Nulle divinité sauf Allah, Seul, sans associé. À Lui la royauté, à Lui la louange, et Il est capable de toute chose.",tip:"Muslim 597 : celui qui dit ces tasbîh après la prière verra ses péchés pardonnés, fussent-ils aussi nombreux que l’écume des mers. Puis : Âyat al-Kursî et les Mu‘awwidhât (Ikhlâs, Falaq, Nâs — ×3 après Fajr/Maghrib, ×1 après les autres)."}}
+];
+
+/* STEPS_2 (20 шагов) — построен из STEPS_4. Пересоздаёт niyyah для 2-рак. */
+function buildSteps2(){
+  const pickIds = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,31,32,33];
+  const arr = pickIds.map((origId, i) => {
+    const s = STEPS_4.find(x => x.id===origId);
+    return { ...s, id: i+1 };
+  });
+  // Override niyyah for 2-rakaat
+  arr[0] = {
+    ...arr[0],
+    ru:{ ...arr[0].ru,
+      translation:"Намерение — в сердце. Мысленно: «Намереваюсь совершить фарз фаджр-намаза, 2 ракаата, ради Аллаха».",
+      tip:"Ният — условие действительности. Вслух произносить не нужно. В 2-ракаатном намазе (Фаджр) чтение Фатихи и суры — вслух."
+    },
+    fr:{ ...arr[0].fr,
+      translation:"L’intention est dans le cœur. Mentalement : « J’ai l’intention d’accomplir la prière obligatoire de Fajr, 2 rak‘ats, pour Allah ».",
+      tip:"La niyya est une condition de validité. Elle ne se prononce pas à voix haute. En prière de 2 rak‘ats (Fajr), Al-Fâtiha et la sourate se récitent à voix haute."
+    }
+  };
+  return arr;
+}
+let STEPS_2 = buildSteps2();
+
+/* ========== STATE ========== */
+let namazMode = LS.raw('namaz_mode') || '2';
+function getSteps(){ return namazMode==='4' ? STEPS_4 : STEPS_2; }
+
+let stepIdx = parseInt(LS.raw('step_idx')||'0',10);
+if (isNaN(stepIdx) || stepIdx<0) stepIdx=0;
+
+/* ========== RENDER STEP ========== */
+const progressBar = document.getElementById('progressBar');
+const progressFill = document.getElementById('progressFill');
+const stepAudio = document.getElementById('stepAudio');
+
+function renderStep(direction='fwd'){
+  const steps = getSteps();
+  if (stepIdx >= steps.length) stepIdx = 0;
+  const s = steps[stepIdx];
+  const L = s[uiLang] || s.ru;
+  progressFill.style.width = (((stepIdx+1)/steps.length)*100).toFixed(2)+'%';
+  progressBar.style.display='block';
+
+  document.getElementById('stepNum').textContent = stepIdx+1;
+  document.getElementById('stepTotal').textContent = steps.length;
+  document.getElementById('stepTitle').textContent = L.title;
+  document.getElementById('stepRakaat').textContent = L.rakaat;
+
+  const card = document.getElementById('stepCard');
+  card.classList.remove('back');
+  card.style.animation='none'; void card.offsetWidth; card.style.animation='';
+  if (direction==='back') card.classList.add('back');
+
+  const imgEl = document.getElementById('stepImg');
+  imgEl.onload = () => { const sk=document.getElementById('sk'); if (sk) sk.style.display='none'; };
+  imgEl.onerror = () => { const sk=document.getElementById('sk'); if (sk) sk.style.display='none'; };
+  imgEl.src = ASSET_BASE + 'img/rijaal/' + s.img;
+  imgEl.alt = L.title;
+
+  const img2Wrap = document.getElementById('stepImg2Wrap');
+  const img2 = document.getElementById('stepImg2');
+  if (s.img2){ img2.src = ASSET_BASE + 'img/rijaal/' + s.img2; img2Wrap.classList.remove('hidden'); }
+  else { img2Wrap.classList.add('hidden'); img2.src=''; }
+
+  document.getElementById('stepArabic').textContent = s.arabic || '';
+  document.getElementById('stepTranslit').textContent = L.translit || '';
+  document.getElementById('stepTranslation').textContent = L.translation || '';
+  document.getElementById('stepTip').textContent = L.tip || '';
+
+  document.getElementById('counter').textContent = `${t('step.word')} ${stepIdx+1} / ${steps.length}`;
+  document.getElementById('btnNext').textContent = (stepIdx===steps.length-1) ? t('step.nextFinal') : t('step.next');
+  document.getElementById('btnPrev').textContent = t('step.prev');
+  document.getElementById('btnAudio').disabled = !s.audio;
+  document.getElementById('btnAudio').textContent = s.audio ? '🔊' : '🔇';
+  document.getElementById('btnReset').textContent = t('step.reset');
+  document.getElementById('btnAuto').textContent = autoMode ? t('step.auto.off') : t('step.auto.on');
+  LS.set('step_idx', stepIdx);
+}
+
+function prevStep(){ if (stepIdx>0){ stepIdx--; haptic.step(); renderStep('back'); stepAudio.pause(); } }
+function nextStep(){
+  stepAudio.pause();
+  const steps=getSteps();
+  if (stepIdx<steps.length-1){ stepIdx++; haptic.step(); renderStep('fwd'); }
+  else { toast(t('step.done')); haptic.success(); stepIdx=0; renderStep('fwd'); }
+}
+function playStepAudio(){
+  const s = getSteps()[stepIdx]; if (!s.audio) return;
+  stepAudio.src = ASSET_BASE + 'audio/' + s.audio;
+  stepAudio.play().catch(()=> toast(t('step.audioErr')));
+}
+
+document.getElementById('btnPrev').onclick = prevStep;
+document.getElementById('btnNext').onclick = nextStep;
+document.getElementById('btnAudio').onclick = playStepAudio;
+document.getElementById('btnReset').onclick = () => { stepIdx=0; haptic.step(); renderStep('back'); };
+
+let autoMode=false, autoTimer=null;
+document.getElementById('btnAuto').onclick = () => {
+  autoMode=!autoMode;
+  if (autoMode){ toast(t('step.autoStart')); autoTimer=setInterval(()=>{ const st=getSteps(); if (stepIdx<st.length-1) nextStep(); else { clearInterval(autoTimer); autoMode=false; toast(t('step.autoEnd')); renderStep(); } }, 22000); }
+  else { clearInterval(autoTimer); toast(t('step.autoPause')); }
+  renderStep();
+};
+
+function setMode(m){
+  namazMode=m; LS.setRaw('namaz_mode', m);
+  stepIdx=0;
+  document.getElementById('mode2').classList.toggle('on', m==='2');
+  document.getElementById('mode4').classList.toggle('on', m==='4');
+  renderStep();
+}
+document.getElementById('mode2').onclick = () => setMode('2');
+document.getElementById('mode4').onclick = () => setMode('4');
+document.getElementById('mode2').classList.toggle('on', namazMode==='2');
+document.getElementById('mode4').classList.toggle('on', namazMode==='4');
+
+/* Swipe */
+(function(){
+  let sx=null, sy=null;
+  document.addEventListener('touchstart', e => { const t=e.changedTouches[0]; sx=t.clientX; sy=t.clientY; }, {passive:true});
+  document.addEventListener('touchend', e => {
+    if (sx==null) return;
+    const t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy;
+    sx=null;
+    if (Math.abs(dx)<50 || Math.abs(dy)>70) return;
+    if (!document.getElementById('screen-namaz').classList.contains('active')) return;
+    dx<0 ? nextStep() : prevStep();
+  }, {passive:true});
+})();
+
+/* ========== NAV ========== */
+const tabs = document.querySelectorAll('.tab');
+function showSection(name){
+  document.querySelectorAll('main .screen, #screen-hadith').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name)?.classList.add('active');
+  tabs.forEach(t=>t.classList.toggle('active', t.dataset.sec===name));
+  progressBar.style.display = (name==='namaz') ? 'block' : 'none';
+  haptic.tap();
+  if (name==='ai') { renderChat(); setTimeout(()=> document.getElementById('inp')?.focus({preventScroll:true}), 50); }
+  if (name==='settings') syncSettings();
+  if (name==='share') renderQrInline();
+  if (name==='namaz') acquireWakeLock(); else releaseWakeLock();
+  LS.setRaw('last_section', name);
+}
+tabs.forEach(tab=> tab.addEventListener('click', ()=> showSection(tab.dataset.sec)));
+
+/* Deep link */
+(() => {
+  const p = new URLSearchParams(location.search);
+  const sec = p.get('section');
+  if (sec && ['namaz','ai','share','settings'].includes(sec)){
+    LS.setRaw('hadith_shown','1');
+    document.getElementById('screen-hadith').classList.remove('active');
+    document.getElementById('app').style.display='block';
+    applyI18n(); renderStep(); showSection(sec);
+  }
+})();
+
+/* ========== HADITH INIT ========== */
+(function initHadith(){
+  applyI18n();
+  if (!LS.raw('hadith_shown')){
+    document.getElementById('screen-hadith').classList.add('active');
+  } else {
+    document.getElementById('screen-hadith').classList.remove('active');
+    document.getElementById('app').style.display='block';
+    const last = LS.raw('last_section');
+    showSection((last && ['namaz','ai','share','settings'].includes(last)) ? last : 'namaz');
+    renderStep();
+  }
+})();
+document.getElementById('enterApp').onclick = () => {
+  LS.setRaw('hadith_shown','1');
+  document.getElementById('screen-hadith').classList.remove('active');
+  document.getElementById('app').style.display='block';
+  showSection('namaz'); renderStep(); haptic.success();
+};
+async function shareApp(){
+  const data = { title:t('shareApp.title'), text:t('shareApp.text'), url: location.origin };
+  try { await navigator.share(data); haptic.success(); }
+  catch {
+    try { await navigator.clipboard.writeText(data.url); toast(t('share.copied')); }
+    catch { toast(t('share.fail')); }
+  }
+}
+document.getElementById('shareNow').onclick = async () => {
+  const text = t('hadith.shareText') + location.origin;
+  try { await navigator.share({ text, title:t('hadith.src') }); }
+  catch { try { await navigator.clipboard.writeText(text); toast(t('share.copied')); } catch { toast(t('share.fail')); } }
+};
+
+/* ========== WAKE LOCK ========== */
+let wakeLock=null;
+async function acquireWakeLock(){
+  if (!('wakeLock' in navigator)) return;
+  try {
+    wakeLock = await navigator.wakeLock.request('screen');
+    document.getElementById('wakeChip').style.display='inline-flex';
+    wakeLock.addEventListener('release', ()=> document.getElementById('wakeChip').style.display='none');
+  } catch {}
+}
+async function releaseWakeLock(){
+  try { if (wakeLock){ await wakeLock.release(); wakeLock=null; } } catch {}
+  document.getElementById('wakeChip').style.display='none';
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState==='visible' && document.getElementById('screen-namaz').classList.contains('active')) acquireWakeLock();
+  else if (document.hidden) releaseWakeLock();
+});
+
+/* ========== NETWORK ========== */
+const App = { isOnline: navigator.onLine, aiProvider:'groq' };
+function netUpdate(){
+  const on = navigator.onLine; App.isOnline=on;
+  const chip = document.getElementById('onlineChip');
+  chip.textContent = on ? t('chip.online') : t('chip.offline');
+  chip.classList.toggle('warn', !on);
+  const nv = document.getElementById('netVal'); if (nv) nv.textContent = on ? t('app.net.on') : t('app.net.off');
+  const st = document.getElementById('aiStatus');
+  if (st) st.textContent = !on ? t('ai.status.noNet') : (App.aiProvider==='groq'? t('ai.status.groq') : t('ai.status.ds'));
+}
+addEventListener('online', netUpdate); addEventListener('offline', netUpdate); netUpdate();
+
+/* ========== INSTALL ========== */
+let deferredPrompt=null;
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt=e; document.getElementById('installBtn').classList.remove('hidden'); });
+function wirePwaLabel(){
+  const el = document.getElementById('pwaVal');
+  const standalone = matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (el) el.textContent = standalone ? t('app.yes') : t('app.no');
+}
+document.getElementById('installBtn').onclick = async () => {
+  if (!deferredPrompt){ toast(t('install.unavailable')); return; }
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome==='accepted'){ toast(t('install.started')); haptic.success(); }
+  deferredPrompt=null;
+};
+
+/* ========== INDEXED DB (chat, cap 50) ========== */
+const IDB_NAME='NamazAI', IDB_STORE='chat';
+function idbOpen(){
+  return new Promise((res, rej)=>{
+    const r = indexedDB.open(IDB_NAME, 1);
+    r.onupgradeneeded = () => { r.result.createObjectStore(IDB_STORE, { keyPath:'id', autoIncrement:true }); };
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+}
+async function idbAdd(rec){
+  try {
+    const db = await idbOpen();
+    await new Promise((res, rej)=>{
+      const tx = db.transaction(IDB_STORE,'readwrite');
+      const st = tx.objectStore(IDB_STORE);
+      st.add({ ...rec, timestamp:Date.now() });
+      st.count().onsuccess = (e) => {
+        const n = e.target.result;
+        if (n > MAX_CHAT_KEEP){
+          const extra = n - MAX_CHAT_KEEP; let removed=0;
+          st.openCursor().onsuccess = ev => { const c=ev.target.result; if (c && removed<extra){ c.delete(); removed++; c.continue(); } };
+        }
+      };
+      tx.oncomplete=res; tx.onerror=()=>rej(tx.error);
+    });
+  } catch {}
+}
+async function idbAll(){
+  try {
+    const db = await idbOpen();
+    return await new Promise((res, rej)=>{
+      const tx = db.transaction(IDB_STORE,'readonly');
+      const req = tx.objectStore(IDB_STORE).getAll();
+      req.onsuccess=()=>res(req.result||[]); req.onerror=()=>rej(req.error);
+    });
+  } catch { return []; }
+}
+async function idbClear(){
+  try {
+    const db = await idbOpen();
+    await new Promise((res, rej)=>{
+      const tx = db.transaction(IDB_STORE,'readwrite');
+      tx.objectStore(IDB_STORE).clear();
+      tx.oncomplete=res; tx.onerror=()=>rej(tx.error);
+    });
+  } catch {}
+}
+
+/* ========== AI ========== */
+function sysPrompt(){
+  const langName = uiLang==='fr' ? 'français' : 'русском';
+  const langNote = uiLang==='fr'
+    ? `ТРЕБОВАНИЕ ЯЗЫКА: Отвечай на ${langName} языке. Réponds en français.`
+    : `ТРЕБОВАНИЕ ЯЗЫКА: Отвечай на ${langName} языке.`;
+  return `Ты — исламский учёный-ассистент, отвечающий ИСКЛЮЧИТЕЛЬНО на основе позиций, фетв и взглядов Шейха аль-Ислам Ибн Таймии (661–728 х.) رحمه الله.
+
+${langNote}
+
+АБСОЛЮТНЫЕ ПРАВИЛА:
+1. Отвечай ТОЛЬКО из: Маджму' аль-Фатава, Аль-Фатава аль-Кубра, Минхадж ас-Сунна, Аль-'Акида аль-Васитийя, Аль-'Акида аль-Хамавийя, Зад аль-Ма'ад (Ибн аль-Каййим — ученик), Иктида ас-Сират аль-Мустаким.
+2. Если не знаешь точной позиции Ибн Таймии — скажи прямо об этом и посоветуй обратиться к Маджму' аль-Фатава или к живому учёному.
+3. НЕ придумывай, НЕ домысливай, НЕ приписывай ему позиции других учёных без явного указания.
+4. Ибн Таймия — Ханбалит, но выбирал сильнейшее мнение из любого мазхаба по далилю.
+5. ЗАПРЕЩЕНО: суфийские практики, которые он отверг; бид'а, которые он критиковал; такфир без оснований.
+6. Формат: бисмилля (если уместно) → краткий ответ → далиль (аят/хадис с коллекцией и номером) → источник Ибн Таймии (книга+том/раздел) → дуа.
+7. Тон: учёный — мягко, но твёрдо, с уважением. Не более 6 коротких абзацев.
+8. Формулы: ﷺ после имени Пророка, «радыяллаху 'анху» для сахабов, «رحمه الله» для учёных.
+9. По сложным современным вопросам (развод, наследство, финансы) — советуй обратиться к живому учёному.`;
+}
+
+const QUICK_Q_BY_LANG = {
+  ru: ['Таравих намаз?','Намаз в джамаате','Отмена омовения','Дуа после намаза','Суджуд ас-Сахв'],
+  fr: ['Prière de tarâwîh ?','Prière en congrégation','Ce qui annule les ablutions','Invocations après la prière','Sujûd as-sahw']
+};
+
+const chatEl = document.getElementById('chat');
+const inpEl = document.getElementById('inp');
+const sendBtn = document.getElementById('sendBtn');
+const micBtn = document.getElementById('micBtn');
+const quickEl = document.getElementById('quickQs');
+
+function renderQuick(){
+  quickEl.innerHTML='';
+  (QUICK_Q_BY_LANG[uiLang]||QUICK_Q_BY_LANG.ru).forEach(q => {
+    const b=document.createElement('button'); b.className='quick-q'; b.textContent=q;
+    b.onclick=()=>{ inpEl.value=q; inpEl.focus(); };
+    quickEl.appendChild(b);
+  });
+}
+
+let lastAnswer='';
+function bubble(role, text){
+  const d=document.createElement('div');
+  d.className='msg ' + (role==='user'?'u':'a');
+  d.textContent = text;
+  if (role==='assistant'){
+    const sp=document.createElement('span'); sp.className='speak'; sp.textContent=' 🔊'; sp.title='🔊'; sp.onclick=()=>speak(text);
+    d.appendChild(sp);
+  }
+  chatEl.appendChild(d);
+  chatEl.scrollTop=chatEl.scrollHeight;
+  window.scrollTo({top:document.body.scrollHeight, behavior:'smooth'});
+  return d;
+}
+
+let chatRendered=false;
+async function renderChat(){
+  if (chatRendered) { renderQuick(); return; }
+  chatRendered=true; renderQuick();
+  const stored = await idbAll();
+  if (stored.length===0) bubble('assistant', t('ai.hello'));
+  else stored.forEach(r => { bubble(r.role, r.text || r.content); if (r.role==='assistant') lastAnswer=r.text||r.content; });
+}
+function refreshChatShell(){
+  renderQuick();
+  // (Не перерисовываем историю — она сохраняется как есть; приветствие будет заменено только при новой пустой истории)
+}
+
+function buildMessages(userText){
+  const recent = [...chatEl.querySelectorAll('.msg')].slice(-12).map(el => ({
+    role: el.classList.contains('u') ? 'user' : 'assistant',
+    content: el.textContent.replace(/ 🔊$/, '').trim()
+  }));
+  return [{ role:'system', content:sysPrompt() }, ...recent, { role:'user', content:userText }];
+}
+
+async function callProvider(provider, messages){
+  const cfg = provider==='groq'
+    ? { url:'https://api.groq.com/openai/v1/chat/completions', key:LS.raw('groq_key')||GROQ_DEFAULT_KEY, model:LS.raw('groq_model')||GROQ_DEFAULT_MODEL }
+    : { url:'https://api.deepseek.com/v1/chat/completions',    key:LS.raw('ds_key')||'',                model:'deepseek-chat' };
+  if (!cfg.key) throw new Error(provider+': no key');
+  const ctrl = new AbortController();
+  const to = setTimeout(()=> ctrl.abort(), 30000);
+  try {
+    const res = await fetch(cfg.url, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+cfg.key },
+      body: JSON.stringify({ model:cfg.model, messages, temperature:0.3, max_tokens:1200 }),
+      signal: ctrl.signal
+    });
+    if (!res.ok){ const txt = await res.text().catch(()=> ''); throw new Error(`${provider} ${res.status}: ${txt.slice(0,120)}`); }
+    const j = await res.json();
+    return j.choices?.[0]?.message?.content || '';
+  } finally { clearTimeout(to); }
+}
+
+async function sendMessage(){
+  const text = (inpEl.value||'').trim();
+  if (!text) return;
+  if (!App.isOnline){ toast(t('ai.status.noNet')); return; }
+  inpEl.value=''; inpEl.style.height='auto';
+  bubble('user', text);
+  await idbAdd({ role:'user', text });
+
+  const pending = bubble('assistant','');
+  pending.innerHTML=`<span class="loading-dots">${t('ai.thinking')}</span>`;
+
+  const messages = buildMessages(text);
+  const order = App.aiProvider==='groq' ? ['groq','deepseek'] : ['deepseek','groq'];
+  let out='', lastErr=null;
+  for (const p of order){
+    try {
+      if (p==='deepseek' && !LS.raw('ds_key')) continue;
+      out = await callProvider(p, messages);
+      App.aiProvider = p; netUpdate();
+      if (p !== order[0]) toast(t('ai.failSwitch') + p, {ms:1800});
+      break;
+    } catch (e){ lastErr=e; console.warn(p, 'failed', e.message); }
+  }
+  if (!out){ pending.textContent = t('ai.errKey') + (lastErr? ` (${lastErr.message})`:''); return; }
+  pending.textContent = out;
+  const sp=document.createElement('span'); sp.className='speak'; sp.textContent=' 🔊'; sp.onclick=()=>speak(out);
+  pending.appendChild(sp);
+  lastAnswer = out;
+  await idbAdd({ role:'assistant', text: out });
+  haptic.tap();
+}
+sendBtn.onclick = sendMessage;
+inpEl.addEventListener('keydown', e => { if (e.key==='Enter' && !e.shiftKey && !e.isComposing){ e.preventDefault(); sendMessage(); } });
+inpEl.addEventListener('input', () => { inpEl.style.height='auto'; inpEl.style.height = Math.min(140, inpEl.scrollHeight) + 'px'; });
+
+/* ========== VOICE INPUT ========== */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recog=null, listening=false;
+function setupRecog(){
+  if (!SR) return;
+  recog = new SR();
+  recog.lang = LS.raw('voice_lang') || 'ru-RU';
+  recog.continuous = false; recog.interimResults = true;
+  let finalT='';
+  recog.onresult = e => {
+    let interim='', fin='';
+    for (let i=e.resultIndex; i<e.results.length; i++){ const r=e.results[i]; if (r.isFinal) fin+=r[0].transcript; else interim+=r[0].transcript; }
+    if (fin) finalT += fin;
+    inpEl.value = (finalT + interim).trim();
+  };
+  recog.onend = () => { listening=false; micBtn.classList.remove('rec'); };
+  recog.onerror = () => { listening=false; micBtn.classList.remove('rec'); toast(t('voice.recogErr')); };
+}
+setupRecog();
+micBtn.addEventListener('click', () => {
+  if (!recog){ toast(t('voice.notSupported')); return; }
+  if (listening){ recog.stop(); return; }
+  try { recog.lang = LS.raw('voice_lang') || 'ru-RU'; recog.start(); listening=true; micBtn.classList.add('rec'); haptic.tap(); toast(t('voice.start'), {ms:1400}); }
+  catch { toast(t('voice.listening')); }
+});
+
+/* ========== VOICE OUTPUT ========== */
+let voices=[], chosenVoice=null;
+function loadVoices(){
+  voices = window.speechSynthesis ? (speechSynthesis.getVoices() || []) : [];
+  const sel = document.getElementById('voiceSel'); if (!sel) return;
+  const lang = (LS.raw('voice_lang')||'ru-RU').split('-')[0];
+  const pool = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith(lang));
+  const list = pool.length ? pool : voices;
+  sel.innerHTML = '<option value="">(auto)</option>' + list.map(v => `<option value="${v.name}">${v.name} — ${v.lang}</option>`).join('');
+  const saved = LS.raw('voice_name');
+  if (saved){ sel.value=saved; chosenVoice=voices.find(v=>v.name===saved)||null; }
+  if (!chosenVoice){
+    const maleHints=['Yuri','Pavel','Dmitri','Maxim','Ivan','Aleksey','Abdullah','Thomas','Nicolas','Henri','Male','Mâle','Мужской'];
+    chosenVoice = pool.find(v => maleHints.some(h=>v.name.includes(h))) || pool[0] || voices[0] || null;
+  }
+}
+if ('speechSynthesis' in window){ speechSynthesis.addEventListener('voiceschanged', loadVoices); loadVoices(); }
+
+function speak(text){
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = LS.raw('voice_lang') || 'ru-RU';
+  u.rate = 0.9; u.pitch = 0.95; u.volume = 1;
+  if (chosenVoice) u.voice = chosenVoice;
+  speechSynthesis.speak(u);
+}
+document.getElementById('speakLast').onclick = () => { if (lastAnswer) speak(lastAnswer); else toast(t('ai.nothingToSpeak')); };
+document.getElementById('stopSpeak').onclick = () => { speechSynthesis.cancel(); };
+
+function setVoiceLang(l){
+  LS.setRaw('voice_lang', l);
+  document.getElementById('voiceRu').classList.toggle('on', l==='ru-RU');
+  document.getElementById('voiceFr').classList.toggle('on', l==='fr-FR');
+  document.getElementById('voiceAr').classList.toggle('on', l==='ar-SA');
+  if (recog) recog.lang = l;
+  chosenVoice = null; loadVoices();
+}
+document.getElementById('voiceRu').onclick = () => setVoiceLang('ru-RU');
+document.getElementById('voiceFr').onclick = () => setVoiceLang('fr-FR');
+document.getElementById('voiceAr').onclick = () => setVoiceLang('ar-SA');
+setVoiceLang(LS.raw('voice_lang') || 'ru-RU');
+
+/* ========== SETTINGS ========== */
+function syncSettings(){
+  document.getElementById('groqKey').value   = LS.raw('groq_key') || '';
+  document.getElementById('dsKey').value     = LS.raw('ds_key') || '';
+  document.getElementById('groqModel').value = LS.raw('groq_model') || GROQ_DEFAULT_MODEL;
+  loadVoices(); wirePwaLabel(); netUpdate();
+}
+document.getElementById('saveKeys').onclick = () => {
+  const gk = document.getElementById('groqKey').value.trim();
+  LS.setRaw('groq_key', gk || GROQ_DEFAULT_KEY);
+  const ds = document.getElementById('dsKey').value.trim();
+  if (ds) LS.setRaw('ds_key', ds); else LS.del('ds_key');
+  LS.setRaw('groq_model', document.getElementById('groqModel').value.trim() || GROQ_DEFAULT_MODEL);
+  const vn = document.getElementById('voiceSel').value;
+  if (vn){ LS.setRaw('voice_name', vn); chosenVoice = voices.find(v=>v.name===vn) || null; } else LS.del('voice_name');
+  toast(t('settings.saved'));
+};
+document.getElementById('clearHist').onclick = async () => {
+  await idbClear();
+  chatEl.innerHTML=''; chatRendered=false; lastAnswer='';
+  if (document.getElementById('screen-ai').classList.contains('active')) renderChat();
+  toast(t('settings.cleared'));
+};
+
+/* ========== QIBLA ========== */
+function qiblaBearing(lat, lon){
+  const toRad=x=>x*Math.PI/180, toDeg=x=>x*180/Math.PI;
+  const L1=toRad(lat), L2=toRad(21.4225);
+  const dL=toRad(39.8262 - lon);
+  const y=Math.sin(dL)*Math.cos(L2);
+  const x=Math.cos(L1)*Math.sin(L2) - Math.sin(L1)*Math.cos(L2)*Math.cos(dL);
+  return (toDeg(Math.atan2(y,x)) + 360) % 360;
+}
+let qiblaAbs=null, orientH=null;
+function renderCompass(){
+  const needle = document.getElementById('needle');
+  if (qiblaAbs==null){ needle.style.transform='translate(-50%,-100%) rotate(0deg)'; return; }
+  const heading = (orientH==null) ? 0 : orientH;
+  const rot = (qiblaAbs - heading + 360) % 360;
+  needle.style.transform = `translate(-50%,-100%) rotate(${rot.toFixed(1)}deg)`;
+  document.getElementById('qiblaDeg').textContent = `${Math.round(qiblaAbs)}°`;
+}
+document.getElementById('qiblaFind').onclick = () => {
+  if (!navigator.geolocation){ toast(t('qibla.noGeo')); return; }
+  document.getElementById('qiblaInfo').textContent = t('qibla.locating');
+  navigator.geolocation.getCurrentPosition(pos => {
+    qiblaAbs = qiblaBearing(pos.coords.latitude, pos.coords.longitude);
+    document.getElementById('qiblaInfo').textContent = `${t('qibla.coords')} ${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)}`;
+    renderCompass(); startCompass();
+  }, err => { document.getElementById('qiblaInfo').textContent = `${t('qibla.noCoords')} ${err.message}`; }, { enableHighAccuracy:true, timeout:10000 });
+};
+document.getElementById('qiblaCal').onclick = () => startCompass(true);
+function startCompass(forcePerm=false){
+  const handler = e => {
+    const alpha = (typeof e.webkitCompassHeading==='number') ? e.webkitCompassHeading : (e.alpha!=null ? (360 - e.alpha) : null);
+    if (alpha==null) return;
+    orientH = alpha; renderCompass();
+  };
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission==='function'){
+    if (forcePerm){
+      DeviceOrientationEvent.requestPermission().then(st => {
+        if (st==='granted'){ addEventListener('deviceorientation', handler, true); toast(t('qibla.compassActive')); }
+        else toast(t('qibla.compassDenied'));
+      }).catch(()=> toast(t('qibla.compassErr')));
+      return;
+    }
+  }
+  addEventListener('deviceorientationabsolute', handler, true);
+  addEventListener('deviceorientation', handler, true);
+}
+
+/* ========== SHARE / QR ========== */
+document.getElementById('shareBtn').onclick = shareApp;
+document.getElementById('copyBtn').onclick = async () => { try { await navigator.clipboard.writeText(location.origin); toast(t('share.copied')); } catch { toast(t('share.copyFail')); } };
+function renderQrInline(){
+  const box = document.getElementById('qrBoxInline'); if (!box || box.dataset.done) return;
+  box.innerHTML='';
+  try { if (window.QRCode){ new QRCode(box, { text: location.origin, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M }); box.dataset.done='1'; } else box.textContent = t('qr.err'); }
+  catch (e){ box.textContent = 'Error: '+e.message; }
+}
+document.getElementById('qrSheetBtn').onclick = () => {
+  const s = document.getElementById('qrSheet'); s.classList.add('open');
+  const box = document.getElementById('qrBoxBig'); box.innerHTML='';
+  try { if (window.QRCode) new QRCode(box, { text: location.origin, width: 260, height: 260, correctLevel: QRCode.CorrectLevel.M }); }
+  catch (e){ box.textContent = 'Error: '+e.message; }
+};
+document.getElementById('qrClose').onclick = () => document.getElementById('qrSheet').classList.remove('open');
+document.getElementById('qrCopy').onclick = async () => { try { await navigator.clipboard.writeText(location.origin); toast(t('share.copied')); } catch { toast(t('share.copyFail')); } };
+document.getElementById('qrSheet').addEventListener('click', e => { if (e.target.id==='qrSheet') e.currentTarget.classList.remove('open'); });
+
+/* ========== UI LANG SWITCH ========== */
+document.getElementById('langRuUi').onclick = () => setUiLang('ru');
+document.getElementById('langFrUi').onclick = () => setUiLang('fr');
+
+/* ========== SW ========== */
+if ('serviceWorker' in navigator){
+  addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then(reg => {
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        nw?.addEventListener('statechange', () => {
+          if (nw.state==='installed' && navigator.serviceWorker.controller){
+            toast(t('app.swReady'), { ms:8000, action:{ label:t('app.swApply'), onClick:()=>{ nw.postMessage('SKIP_WAITING'); setTimeout(()=> location.reload(), 300); } } });
+          }
+        });
+      });
+    }).catch(e => console.warn('SW register failed', e));
+    let reloaded=false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (reloaded) return; reloaded=true; location.reload(); });
+  });
+}
+document.getElementById('swUpdateBtn').onclick = async () => {
+  const reg = await navigator.serviceWorker?.getRegistration();
+  if (reg){ reg.update(); toast(t('app.swUpdating')); } else toast(t('app.swNoReg'));
+};
+
+/* ========== FIRST PAINT ========== */
+applyI18n(); renderStep(); syncSettings();
+if (document.getElementById('screen-namaz').classList.contains('active')) acquireWakeLock();
+</script>
+</body>
+</html>
